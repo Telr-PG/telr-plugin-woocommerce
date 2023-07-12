@@ -1,0 +1,32 @@
+.inline-list {
+    display: inline-flex;
+}
+
+.inline-list li{
+    margin-left: 10px;
+}
+.inline-list li:first-child {
+    width: 150px;
+}
+tfoot th:last-child {
+    display: none;
+}
+.paginate_button {
+    cursor: pointer;
+    padding: 5px;
+}
+#symparts, #symtoms, #concsymptoms, #concreport {
+    height: 165px;
+    width: 200px;
+}
+
+.wd225{
+	width: 225px;
+}
+.test{
+	font-size: 5em;
+}
+
+#sym-listing-conc td{
+    border: 1px solid #e1e1e1;
+}
