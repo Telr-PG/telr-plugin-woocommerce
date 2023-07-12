@@ -2,7 +2,7 @@
 
 This plugin enables your WooCommerce powered platform to start accepting payments via Telr.
 
-### How to Install Telr’s WooCommerce App? ###
+### How to Install Telr’s WooCommerce Plugin? ###
 
 * Download package and make zip file of the 'wc-telr' directory.
 * Log in to the WordPress administration system, from the side menu select the Plugins option and click on 'Add New' button .
