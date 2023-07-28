@@ -548,7 +548,9 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
     public function payment_fields() {
         if($this->payment_mode_woocomm == '10'){
             $frameHeight = 320;
-            $iframeUrl = "https://secure.telr.com/jssdk/v2/token_frame.html?token=" . rand(1111,9999);
+			$lange = wc_gateway_telr()->settings->__get('language');	
+            //$iframeUrl = "https://secure.telr.com/jssdk/v2/token_frame.html?token=" . rand(1111,9999);
+			$iframeUrl = "https://secure.telr.com/jssdk/v2/token_frame.html?token=" . rand(1111,9999). "&lang=".$lange;
             $test_mode  = (wc_gateway_telr()->settings->__get('testmode') == 'yes') ? 1 : 0;
             $savedCards = [];
             if (is_ssl() && is_user_logged_in()) {
