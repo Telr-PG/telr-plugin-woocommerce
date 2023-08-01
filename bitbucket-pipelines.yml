@@ -9,4 +9,4 @@ pipelines:
             - git config --global user.email "deploy@telr.com"
             - git config --global user.name "deploy"
             - git remote add github https://github.com/Telr-PG/telr-plugin-woocommerce
-            - git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Telr-PG/telr-plugin-woocommerce HEAD:refs/heads/main -f
+            - git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Telr-PG/telr-plugin-woocommerce HEAD:refs/heads/main
