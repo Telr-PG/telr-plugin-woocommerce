@@ -4,7 +4,9 @@ pipelines:
   default:
     - step:
         name: Push to GitHub
-        script:         
+        script:
+          - git clone --depth 1 https://bitbucket.org/telr/telr-plugin-woocommerce
+          - cd telr-plugin-woocommerce
           - git config --global user.email "deploy@telr.com"
           - git config --global user.name "deploy"
           - git remote add github https://github.com/Telr-PG/telr-plugin-woocommerce
