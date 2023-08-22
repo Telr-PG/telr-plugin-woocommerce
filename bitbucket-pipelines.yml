@@ -6,7 +6,9 @@ pipelines:
       - step:
           name: Push to GitHub
           script:         
-            - git config --global user.email "deploy@telr.com"
-            - git config --global user.name "deploy"
-            - git remote add github https://github.com/Telr-PG/telr-plugin-woocommerce
-            - git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Telr-PG/telr-plugin-woocommerce HEAD:refs/heads/main
+            - git config --global user.email ${GITHUB_EMAIL}
+            - git config --global user.name ${GITHUB_USER}
+            - FULL_REPO=${BITBUCKET_REPO_FULL_NAME}
+            - REPO=${FULL_REPO:5}
+            - git remote add github https://github.com/Telr-PG/$REPO
+            - git push -f https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Telr-PG/$REPO HEAD:refs/heads/main
