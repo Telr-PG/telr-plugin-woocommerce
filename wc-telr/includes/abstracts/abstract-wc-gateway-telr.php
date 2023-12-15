@@ -240,7 +240,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                     $subscription_obj = new WC_Subscription($order_id);
                                     $subscription_obj->update_status('active');
                                 }else{
-                                    //add_post_meta($order_id, '_telr_auth_tranref', $tranRef);
+                                    add_post_meta($order_id, '_telr_auth_tranref', $tranRef);
                                     if ( class_exists( 'WC_Subscriptions_Order' ) ) {
                                         $subscriptions_ids = wcs_get_subscriptions_for_order( $order_id );
                                         foreach( $subscriptions_ids as $subscription_id => $subscription_obj ){
