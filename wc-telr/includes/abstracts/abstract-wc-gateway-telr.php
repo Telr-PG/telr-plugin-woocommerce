@@ -267,9 +267,9 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                     $newOrderStatus = 'refunded';
                                     $order->update_status($newOrderStatus);    
                                 }else{
-									if(get_post_meta($order_id, '_telr_refundref')){										
-										if(get_post_meta($order_id, '_telr_refundref', true) == 'woocommerce'){											
-											delete_post_meta($order_id, '_telr_refundref');
+									if(get_post_meta($order_id, 'refund_initi')){										
+										if(get_post_meta($order_id, 'refund_initi', true) == '1'){											
+											delete_post_meta($order_id, 'refund_initi');
 										}									
 									}else{
 										$refund = wc_create_refund(array('amount' => $tranAmount, 'reason' => 'Order Refunded From Telr Panel ', 'order_id' => $order_id, 'line_items' => array()));
@@ -738,6 +738,8 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 		$refund_currency = $order->get_currency();
 		$order_ref = get_post_meta($order_id, '_telr_auth_tranref', true);
 		
+		add_post_meta($order_id, 'refund_initi', '1');
+		
         $this->debug                = wc_gateway_telr()->settings->__get('debug');
         $this->order_status         = wc_gateway_telr()->settings->__get('order_status');
         $this->cart_desc            = wc_gateway_telr()->settings->__get('cart_desc');
@@ -791,20 +793,23 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 					if($responseArray['auth']['status'] == 'A'){
 						// Process the array
 						$order->add_order_note('Refunded ' . $amount . ' for reason: ' . $reason);
-						add_post_meta($order_id, '_telr_refundref', 'woocommerce');
 						return true;
 					}else{
 						$order->add_order_note($responseArray['auth']['message']);
+						delete_post_meta($order_id, 'refund_initi');
 						return false;
 					}
 				} else {
 					$order->add_order_note('Refund failed');
+					delete_post_meta($order_id, 'refund_initi');
 					return false;
 				}
 			}else{
+				delete_post_meta($order_id, 'refund_initi');
 				return false;
 			}
 		}else{
+			delete_post_meta($order_id, 'refund_initi');
 			return false;
 		}
         
