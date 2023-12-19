@@ -26,7 +26,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
             'subscription_date_changes',
             'subscription_payment_method_change',
             'subscription_payment_method_change_customer',
-			'refunds', 
+            'refunds', 
         );
     
         // Load the settings.
@@ -232,7 +232,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                 
                                 if($orderType == 'shop_subscription'){
                                     delete_post_meta($order_id, '_telr_auth_tranref');
-									add_post_meta($order_id, '_telr_auth_tranref', $tranRef);
+                                    add_post_meta($order_id, '_telr_auth_tranref', $tranRef);
                                     $subscription_obj = new WC_Subscription($order_id);
                                     $subscription_obj->update_status('active');
                                 }else{
@@ -263,12 +263,12 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                     $newOrderStatus = 'refunded';
                                     $order->update_status($newOrderStatus);    
                                 }else{
-									if(get_post_meta($order_id, 'is_plugin_refund')){						
-										if(get_post_meta($order_id, 'is_plugin_refund', true) == '1'){											
-											delete_post_meta($order_id, 'is_plugin_refund');
-										}								
-									}else{
-										$refund = wc_create_refund(array('amount' => $tranAmount, 'reason' => 'Order Refunded From Telr Panel ', 'order_id' => $order_id, 'line_items' => array()));
+                                    if(get_post_meta($order_id, 'is_plugin_refund')){						
+                                        if(get_post_meta($order_id, 'is_plugin_refund', true) == '1'){											
+                                            delete_post_meta($order_id, 'is_plugin_refund');
+                                        }								
+                                    }else{
+                                        $refund = wc_create_refund(array('amount' => $tranAmount, 'reason' => 'Order Refunded From Telr Panel ', 'order_id' => $order_id, 'line_items' => array()));
                                     }
                                 }
                                 break;
@@ -714,7 +714,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 	 
 	public function process_refund($order_id,$amount = null, $reason = ''){
 		 		 
-		$order = wc_get_order($order_id);
+        $order = wc_get_order($order_id);
 
         // Check if the order exists
         if (!$order) {
@@ -728,13 +728,13 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 				
 		$url = "https://secure.telr.com/gateway/remote.xml";
 		
-		$store_id        = $this->store_id;
+	    $store_id        = $this->store_id;
         $store_secret    = $this->remote_store_secret;
         $testmode        = $this->testmode == 'yes' ? 1 : 0;
-		$refund_currency = $order->get_currency();
-		$order_ref = get_post_meta($order_id, '_telr_auth_tranref', true);
+	    $refund_currency = $order->get_currency();
+	    $order_ref = get_post_meta($order_id, '_telr_auth_tranref', true);
 		
-		add_post_meta($order_id, 'is_plugin_refund', '1');
+	    add_post_meta($order_id, 'is_plugin_refund', '1');
 		
         $this->debug                = wc_gateway_telr()->settings->__get('debug');
         $this->order_status         = wc_gateway_telr()->settings->__get('order_status');
