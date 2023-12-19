@@ -714,7 +714,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 	 
 	public function process_refund($order_id,$amount = null, $reason = ''){
 		 		 
-		 $order = wc_get_order($order_id);
+		$order = wc_get_order($order_id);
 
         // Check if the order exists
         if (!$order) {
@@ -744,21 +744,21 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
         $this->default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
         $this->payment_mode_woocomm = wc_gateway_telr()->settings->__get('payment_mode');
 		
-		$xmlData = " <?xml version='1.0' encoding='UTF-8'?>
-						<remote>
-							<store>$store_id</store>
-							<key>$store_secret</key>
-							<tran>
-								<type>refund</type>
-								<class>ecom</class>
-								<cartid>$order_id</cartid>
-								<description>$reason</description>
-								<test>$testmode</test>
-								<currency>$refund_currency</currency>
-								<amount>$amount</amount>
-								<ref>$order_ref</ref>
-							</tran>
-						</remote>";
+		$xmlData = "<?xml version='1.0' encoding='UTF-8'?>
+					<remote>
+						<store>$store_id</store>
+						<key>$store_secret</key>
+						<tran>
+							<type>refund</type>
+							<class>ecom</class>
+							<cartid>$order_id</cartid>
+							<description>$reason</description>
+							<test>$testmode</test>
+							<currency>$refund_currency</currency>
+							<amount>$amount</amount>
+							<ref>$order_ref</ref>
+						</tran>
+					</remote>";
 						
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -773,41 +773,24 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 		$results = curl_exec($ch);
 		$err = curl_error($ch);
 		curl_close($ch);
-		$xml = simplexml_load_string($results);
-		$json = json_encode($xml);
 				
-		if (!$err) {
-			if ($results !== false) {
-				
-				$xml = simplexml_load_string($results);
-				$json = json_encode($xml);
-				$responseArray = json_decode($json, true);
-				
-				
-				if ($responseArray !== null) {
-					
-					if($responseArray['auth']['status'] == 'A'){
-						// Process the array
-						$order->add_order_note('Refunded ' . $amount . ' for reason: ' . $reason);
-						return true;
-					}else{
-						$order->add_order_note($responseArray['auth']['message']);
-						delete_post_meta($order_id, 'is_plugin_refund');
-						return false;
-					}
-				} else {
-					$order->add_order_note('Refund failed');
-					delete_post_meta($order_id, 'is_plugin_refund');
-					return false;
+		if (!$err && $results !== false) {
+			$xml = simplexml_load_string($results);
+			$json = json_encode($xml);
+			$responseArray = json_decode($json, true);				
+			
+			if ($responseArray !== null) {					
+				if($responseArray['auth']['status'] == 'A'){
+					$order->add_order_note('Refunded ' . $amount . ' for reason: ' . $reason);
+					return true;
+				}else{
+					$order->add_order_note($responseArray['auth']['message']);					
 				}
-			}else{
-				delete_post_meta($order_id, 'is_plugin_refund');
-				return false;
 			}
-		}else{
-			delete_post_meta($order_id, 'is_plugin_refund');
-			return false;
 		}
-        
+		
+		$order->add_order_note('Refund failed');
+		delete_post_meta($order_id, 'is_plugin_refund');
+		return false;
 	}
 }
