@@ -223,10 +223,6 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                     $tranRef = $_POST['tran_ref'];
                     $tranAmount = $_POST['tran_amount'];
 
-                    /*if (get_post_meta($order_id, '_telr_auth_tranref')) {
-                        delete_post_meta($order_id, '_telr_auth_tranref');
-                    }*/
-
                     if ($tranStatus == 'A') {
                         switch ($tranType) {
                             case '1':
@@ -235,8 +231,8 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                 $orderType = get_post_type($order_id);
                                 
                                 if($orderType == 'shop_subscription'){
-                                    //delete_post_meta($order_id, '_telr_auth_tranref');
-                                   //add_post_meta($order_id, '_telr_auth_tranref', $transaction_ref);
+                                    delete_post_meta($order_id, '_telr_auth_tranref');
+									add_post_meta($order_id, '_telr_auth_tranref', $tranRef);
                                     $subscription_obj = new WC_Subscription($order_id);
                                     $subscription_obj->update_status('active');
                                 }else{
@@ -244,7 +240,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                     if ( class_exists( 'WC_Subscriptions_Order' ) ) {
                                         $subscriptions_ids = wcs_get_subscriptions_for_order( $order_id );
                                         foreach( $subscriptions_ids as $subscription_id => $subscription_obj ){
-                                            //add_post_meta($subscription_id, '_telr_auth_tranref', $transaction_ref);
+                                            add_post_meta($subscription_id, '_telr_auth_tranref', $tranRef);
                                         }
                                     }
                                     $order->payment_complete();
@@ -267,9 +263,9 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                     $newOrderStatus = 'refunded';
                                     $order->update_status($newOrderStatus);    
                                 }else{
-									if(get_post_meta($order_id, 'refund_initi')){										
-										if(get_post_meta($order_id, 'refund_initi', true) == '1'){											
-											delete_post_meta($order_id, 'refund_initi');
+									if(get_post_meta($order_id, 'is_plugin_refund')){										
+										if(get_post_meta($order_id, 'is_plugin_refund', true) == '1'){											
+											delete_post_meta($order_id, 'is_plugin_refund');
 										}									
 									}else{
 										$refund = wc_create_refund(array('amount' => $tranAmount, 'reason' => 'Order Refunded From Telr Panel ', 'order_id' => $order_id, 'line_items' => array()));
@@ -738,7 +734,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 		$refund_currency = $order->get_currency();
 		$order_ref = get_post_meta($order_id, '_telr_auth_tranref', true);
 		
-		add_post_meta($order_id, 'refund_initi', '1');
+		add_post_meta($order_id, 'is_plugin_refund', '1');
 		
         $this->debug                = wc_gateway_telr()->settings->__get('debug');
         $this->order_status         = wc_gateway_telr()->settings->__get('order_status');
@@ -796,20 +792,20 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 						return true;
 					}else{
 						$order->add_order_note($responseArray['auth']['message']);
-						delete_post_meta($order_id, 'refund_initi');
+						delete_post_meta($order_id, 'is_plugin_refund');
 						return false;
 					}
 				} else {
 					$order->add_order_note('Refund failed');
-					delete_post_meta($order_id, 'refund_initi');
+					delete_post_meta($order_id, 'is_plugin_refund');
 					return false;
 				}
 			}else{
-				delete_post_meta($order_id, 'refund_initi');
+				delete_post_meta($order_id, 'is_plugin_refund');
 				return false;
 			}
 		}else{
-			delete_post_meta($order_id, 'refund_initi');
+			delete_post_meta($order_id, 'is_plugin_refund');
 			return false;
 		}
         
