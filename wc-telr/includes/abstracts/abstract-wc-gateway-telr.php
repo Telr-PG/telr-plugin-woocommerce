@@ -263,13 +263,13 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                     $newOrderStatus = 'refunded';
                                     $order->update_status($newOrderStatus);    
                                 }else{
-									if(get_post_meta($order_id, 'is_plugin_refund')){										
+									if(get_post_meta($order_id, 'is_plugin_refund')){						
 										if(get_post_meta($order_id, 'is_plugin_refund', true) == '1'){											
 											delete_post_meta($order_id, 'is_plugin_refund');
-										}									
+										}								
 									}else{
 										$refund = wc_create_refund(array('amount' => $tranAmount, 'reason' => 'Order Refunded From Telr Panel ', 'order_id' => $order_id, 'line_items' => array()));
-                                    }	 
+                                    }
                                 }
                                 break;
 
