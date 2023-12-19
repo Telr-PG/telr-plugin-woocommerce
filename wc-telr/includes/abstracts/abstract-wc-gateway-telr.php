@@ -26,6 +26,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
             'subscription_date_changes',
             'subscription_payment_method_change',
             'subscription_payment_method_change_customer',
+            'refunds', 
         );
     
         // Load the settings.
@@ -55,6 +56,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 		
         $this->store_id             = wc_gateway_telr()->settings->__get('store_id');
         $this->store_secret         = wc_gateway_telr()->settings->__get('store_secret');
+        $this->remote_store_secret  = wc_gateway_telr()->settings->__get('remote_store_secret');																						 
         $this->testmode             = wc_gateway_telr()->settings->__get('testmode');
         $this->debug                = wc_gateway_telr()->settings->__get('debug');
         $this->order_status         = wc_gateway_telr()->settings->__get('order_status');
@@ -221,10 +223,6 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                     $tranRef = $_POST['tran_ref'];
                     $tranAmount = $_POST['tran_amount'];
 
-                    if (get_post_meta($order_id, '_telr_auth_tranref')) {
-                        delete_post_meta($order_id, '_telr_auth_tranref');
-                    }
-
                     if ($tranStatus == 'A') {
                         switch ($tranType) {
                             case '1':
@@ -234,7 +232,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                 
                                 if($orderType == 'shop_subscription'){
                                     delete_post_meta($order_id, '_telr_auth_tranref');
-                                    add_post_meta($order_id, '_telr_auth_tranref', $transaction_ref);
+                                    add_post_meta($order_id, '_telr_auth_tranref', $tranRef);
                                     $subscription_obj = new WC_Subscription($order_id);
                                     $subscription_obj->update_status('active');
                                 }else{
@@ -242,7 +240,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                     if ( class_exists( 'WC_Subscriptions_Order' ) ) {
                                         $subscriptions_ids = wcs_get_subscriptions_for_order( $order_id );
                                         foreach( $subscriptions_ids as $subscription_id => $subscription_obj ){
-                                            add_post_meta($subscription_id, '_telr_auth_tranref', $transaction_ref);
+                                            add_post_meta($subscription_id, '_telr_auth_tranref', $tranRef);
                                         }
                                     }
                                     $order->payment_complete();
@@ -265,7 +263,13 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                     $newOrderStatus = 'refunded';
                                     $order->update_status($newOrderStatus);    
                                 }else{
-                                    $refund = wc_create_refund(array('amount' => $tranAmount, 'reason' => 'Order Refunded From Telr Panel', 'order_id' => $order_id, 'line_items' => array()));    
+                                    if(get_post_meta($order_id, 'is_plugin_refund')){						
+                                        if(get_post_meta($order_id, 'is_plugin_refund', true) == '1'){											
+                                            delete_post_meta($order_id, 'is_plugin_refund');
+                                        }								
+                                    }else{
+                                        $refund = wc_create_refund(array('amount' => $tranAmount, 'reason' => 'Order Refunded From Telr Panel ', 'order_id' => $order_id, 'line_items' => array()));
+                                    }
                                 }
                                 break;
 
@@ -696,4 +700,97 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 
         return $telrCards;
     }
+	 
+	 /**
+	 * Try to refund the payment for an order via the gateway.
+	 *
+	 * @since 3.0.0
+	 * @throws Exception Throws exceptions when fail to refund, but returns WP_Error instead.
+	 * @param WC_Order $order  Order instance.
+	 * @param string   $amount Amount to refund.
+	 * @param string   $reason Refund reason.
+	 * @return bool|WP_Error
+	 */
+	 
+	public function process_refund($order_id,$amount = null, $reason = ''){
+		 		 
+        $order = wc_get_order($order_id);
+
+        // Check if the order exists
+        if (!$order) {
+            return false;
+        }
+		
+        if($this->remote_store_secret == null || $this->remote_store_secret == ''){
+            $order->add_order_note('Please check that the Remote API Authentication Key is not blank or incorrect.');
+            return false;
+        }
+				
+	    $url = "https://secure.telr.com/gateway/remote.xml";
+		
+	    $store_id        = $this->store_id;
+        $store_secret    = $this->remote_store_secret;
+        $testmode        = $this->testmode == 'yes' ? 1 : 0;
+	    $refund_currency = $order->get_currency();
+	    $order_ref = get_post_meta($order_id, '_telr_auth_tranref', true);
+		
+	    add_post_meta($order_id, 'is_plugin_refund', '1');
+		
+        $this->debug                = wc_gateway_telr()->settings->__get('debug');
+        $this->order_status         = wc_gateway_telr()->settings->__get('order_status');
+        $this->cart_desc            = wc_gateway_telr()->settings->__get('cart_desc');
+        $this->payment_mode         = wc_gateway_telr()->settings->__get('payment_mode');
+        $this->language             = wc_gateway_telr()->settings->__get('language');
+        $this->default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
+        $this->payment_mode_woocomm = wc_gateway_telr()->settings->__get('payment_mode');
+		
+        $xmlData = "<?xml version='1.0' encoding='UTF-8'?>
+					<remote>
+						<store>$store_id</store>
+						<key>$store_secret</key>
+						<tran>
+							<type>refund</type>
+							<class>ecom</class>
+							<cartid>$order_id</cartid>
+							<description>$reason</description>
+							<test>$testmode</test>
+							<currency>$refund_currency</currency>
+							<amount>$amount</amount>
+							<ref>$order_ref</ref>
+						</tran>
+					</remote>";
+						
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			'Content-Type: application/xml',
+			'Content-Length: ' . strlen($xmlData)
+		));
+		
+		$results = curl_exec($ch);
+		$err = curl_error($ch);
+		curl_close($ch);
+				
+		if (!$err && $results !== false) {
+			$xml = simplexml_load_string($results);
+			$json = json_encode($xml);
+			$responseArray = json_decode($json, true);				
+			
+			if ($responseArray !== null) {					
+				if($responseArray['auth']['status'] == 'A'){
+					$order->add_order_note('Refunded ' . $amount . ' for reason: ' . $reason);
+					return true;
+				}else{
+					$order->add_order_note($responseArray['auth']['message']);					
+				}
+			}
+		}
+		
+		$order->add_order_note('Refund failed');
+		delete_post_meta($order_id, 'is_plugin_refund');
+		return false;
+	}
 }
