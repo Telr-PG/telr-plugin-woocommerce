@@ -56,7 +56,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 		
         $this->store_id             = wc_gateway_telr()->settings->__get('store_id');
         $this->store_secret         = wc_gateway_telr()->settings->__get('store_secret');
-		$this->remote_store_secret  = wc_gateway_telr()->settings->__get('remote_store_secret');																						 
+        $this->remote_store_secret  = wc_gateway_telr()->settings->__get('remote_store_secret');																						 
         $this->testmode             = wc_gateway_telr()->settings->__get('testmode');
         $this->debug                = wc_gateway_telr()->settings->__get('debug');
         $this->order_status         = wc_gateway_telr()->settings->__get('order_status');
@@ -721,12 +721,12 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
             return false;
         }
 		
-		if($this->remote_store_secret == null || $this->remote_store_secret == ''){
-			$order->add_order_note('Please check that the Remote API Authentication Key is not blank or incorrect.');
-			return false;
-		}
+        if($this->remote_store_secret == null || $this->remote_store_secret == ''){
+            $order->add_order_note('Please check that the Remote API Authentication Key is not blank or incorrect.');
+            return false;
+        }
 				
-		$url = "https://secure.telr.com/gateway/remote.xml";
+	    $url = "https://secure.telr.com/gateway/remote.xml";
 		
 	    $store_id        = $this->store_id;
         $store_secret    = $this->remote_store_secret;
@@ -744,7 +744,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
         $this->default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
         $this->payment_mode_woocomm = wc_gateway_telr()->settings->__get('payment_mode');
 		
-		$xmlData = "<?xml version='1.0' encoding='UTF-8'?>
+        $xmlData = "<?xml version='1.0' encoding='UTF-8'?>
 					<remote>
 						<store>$store_id</store>
 						<key>$store_secret</key>
