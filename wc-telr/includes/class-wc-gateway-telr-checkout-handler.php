@@ -71,15 +71,15 @@ class WC_Gateway_Telr_Checkout_Handler
             );
         }
         
-        $order->update_meta_data( '_telr_ref', $telr_ref );
+        $order->update_meta_data('_telr_ref',$telr_ref);
 
         $order->update_status('wc-pending');
         
         if(is_ssl() && ($this->payment_mode_woocomm == 2 || $this->payment_mode_woocomm == '9' || $this->payment_mode_woocomm == '10') && !isset($_POST['woocommerce_change_payment'])) {
-            if ($order->get_meta( '_telr_url', true )) {
-                $order->delete_meta_data( '_telr_url', true );
+            if ($order->get_meta('_telr_url',true)) {
+                $order->delete_meta_data('_telr_url',true);
             }
-            $order->add_meta_data( '_telr_url', $telr_url );
+            $order->add_meta_data('_telr_url',$telr_url);
             if($this->payment_mode_woocomm == '9' || $this->payment_mode_woocomm == '10'){
                 return array(
                     'result'    => 'success',
@@ -132,9 +132,9 @@ class WC_Gateway_Telr_Checkout_Handler
     */
     public function receipt_page($order_id)
     {
-	    $order    = new WC_Order($order_id);
+        $order    = new WC_Order($order_id);
 		
-        $payment_url = $order->get_meta( '_telr_url', true );
+        $payment_url = $order->get_meta('_telr_url',true);
         $style = '#telr {width: 100%; min-width: 600px; height: 600px; border: none;}';
         $style .= ".order_details {display: none;}";
         echo "<style>$style</style>";
@@ -157,7 +157,7 @@ class WC_Gateway_Telr_Checkout_Handler
 
         $prefix=$productnames="";
         foreach ( $items as $item ) {
-          $productnames .= $prefix.$item->get_name();
+           $productnames .= $prefix.$item->get_name();
            $prefix = ', ';
         }
  
@@ -172,10 +172,10 @@ class WC_Gateway_Telr_Checkout_Handler
         }
 
         $cart_id   = $order_id."_".uniqid();
-        if ($order->get_meta( '_telr_cartid', true )) {
-            $order->delete_meta_data( '_telr_cartid', true );
+        if ($order->get_meta('_telr_cartid',true)) {
+            $order->delete_meta_data('_telr_cartid',true);
         }
-        $order->add_meta_data( '_telr_cartid', $cart_id );
+        $order->add_meta_data('_telr_cartid',$cart_id);
         
         $cart_desc = trim(wc_gateway_telr()->settings->__get('cart_desc'));
         if (empty($cart_desc)) {
@@ -191,8 +191,8 @@ class WC_Gateway_Telr_Checkout_Handler
         $cart_desc = substr($cart_desc,0,63);
 
              
-        $order->add_meta_data( '_telr_cartdesc', $cart_desc );
-	    $order->save();
+        $order->add_meta_data('_telr_cartdesc',$cart_desc);
+        $order->save();
 		
         $test_mode  = (wc_gateway_telr()->settings->__get('testmode') == 'yes') ? 1 : 0;
         
@@ -258,13 +258,13 @@ class WC_Gateway_Telr_Checkout_Handler
                 $productId = $productInfo['product_id'];
                 $productQuantity = $productInfo['quantity'];
                 $productTotal = $productInfo['total'];
-                $isSubProduct = get_post_meta($productId, '_subscription_telr', true);
+                $isSubProduct = get_post_meta($productId,'_subscription_telr',true);
                 if($isSubProduct == 'yes'){
-                    $recurrCount = get_post_meta($productId, '_continued_of', true);
-                    $recurrAmount = get_post_meta($productId, '_payment_of', true);
-                    $recurrInterval = get_post_meta($productId, '_every_number_of', true);
-                    $recurrIntUnit = get_post_meta($productId, '_for_number_of', true);
-                    $finalAmount = get_post_meta($productId, '_final_payment_of', true);
+                    $recurrCount = get_post_meta($productId,'_continued_of',true);
+                    $recurrAmount = get_post_meta($productId,'_payment_of',true);
+                    $recurrInterval = get_post_meta($productId,'_every_number_of',true);
+                    $recurrIntUnit = get_post_meta($productId,'_for_number_of',true);
+                    $finalAmount = get_post_meta($productId,'_final_payment_of',true);
                     $scheduleDate = "";
                     
                     $data['repeat_amount'] = $recurrAmount * $productQuantity;
