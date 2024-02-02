@@ -32,7 +32,7 @@ class WC_Gateway_Telr_Checkout_Handler
         $order    = new WC_Order($order_id);
       
 
-         if($this->subs_method == 'telr'){
+        if($this->subs_method == 'telr'){
             if(!$this->validateOrderProducts($order_id)){
                 wc_add_notice("Only 1 Repeat Billing product is allowed per transaction.", 'error');
                 return array(
@@ -132,7 +132,7 @@ class WC_Gateway_Telr_Checkout_Handler
     */
     public function receipt_page($order_id)
     {
-		$order    = new WC_Order($order_id);
+	    $order    = new WC_Order($order_id);
 		
         $payment_url = $order->get_meta( '_telr_url', true );
         $style = '#telr {width: 100%; min-width: 600px; height: 600px; border: none;}';
@@ -155,7 +155,7 @@ class WC_Gateway_Telr_Checkout_Handler
         $order_id = $order->get_id();
         $items = $order->get_items();
 
-       $prefix=$productnames="";
+        $prefix=$productnames="";
         foreach ( $items as $item ) {
           $productnames .= $prefix.$item->get_name();
            $prefix = ', ';
@@ -192,7 +192,7 @@ class WC_Gateway_Telr_Checkout_Handler
 
              
         $order->add_meta_data( '_telr_cartdesc', $cart_desc );
-		$order->save();
+	    $order->save();
 		
         $test_mode  = (wc_gateway_telr()->settings->__get('testmode') == 'yes') ? 1 : 0;
         

@@ -37,7 +37,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
         // Configure page fields
         $this->init_settings();
 
-        $this->enabled              = wc_gateway_telr()->settings->__get('enabled');
+        $this->enabled = wc_gateway_telr()->settings->__get('enabled');
         
 
         if ( defined( 'ICL_LANGUAGE_CODE' ) ) {
@@ -125,12 +125,12 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 
     public function process_subscription_payment( $order, $amount ) {
         $order_id = method_exists( $order, 'get_id' ) ? $order->get_id() : $order->id;
-        $telr_txnref = reset($order->get_meta('_telr_auth_tranref', true ));
+        $telr_txnref = reset($order->get_meta('_telr_auth_tranref',true));
 
         if ( $telr_txnref ) {
             $test_mode  = (wc_gateway_telr()->settings->__get('testmode') == 'yes') ? 1 : 0;
             $cart_desc = trim(wc_gateway_telr()->settings->__get('cart_desc'));
-             if (empty($cart_desc)) {
+            if (empty($cart_desc)) {
                 $cart_desc ='Order {order_id}';
             }
             $cart_desc  = preg_replace('/{order_id}/i', $order_id, $cart_desc);
@@ -140,7 +140,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
             $prefix=$productnames="";
             foreach ( $items as $item ) {
               $productnames .= $prefix.$item->get_name();
-               $prefix = ', ';
+              $prefix = ', ';
             }
      
             $productinorder = substr($productnames,0,63);
@@ -215,7 +215,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
             $order_id = $cartIdExtract[0];
             $order = new WC_Order($order_id);
 			
-            $cart_id = $order->get_meta('_telr_cartid', true );			
+            $cart_id = $order->get_meta('_telr_cartid',true);			
             if ($cart_id == $_GET['cart_id'] and $cart_id = $_POST['tran_cartid']) {
                 try {                    
                     //checking for default order status. If set, apply the default
@@ -233,17 +233,17 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                 $orderType = OrderUtil::get_order_type( $order_id );
                                 
                                 if($orderType == 'shop_subscription'){
-									$order->delete_meta_data('_telr_auth_tranref');
-									$order->add_meta_data( '_telr_auth_tranref', $tranRef );
+                                    $order->delete_meta_data('_telr_auth_tranref');
+                                    $order->add_meta_data('_telr_auth_tranref',$tranRef);
                                     $subscription_obj = new WC_Subscription($order_id);
                                     $subscription_obj->update_status('active');
                                 }else{
-									$order->add_meta_data( '_telr_auth_tranref', $tranRef );
+                                    $order->add_meta_data('_telr_auth_tranref',$tranRef);
                                     if ( class_exists( 'WC_Subscriptions_Order' ) ) {
-                                        $subscriptions_ids = wcs_get_subscriptions_for_order( $order_id );
+                                        $subscriptions_ids = wcs_get_subscriptions_for_order($order_id);
                                         foreach( $subscriptions_ids as $subscription_id => $subscription_obj ){
-											$subscription_obj->add_meta_data( '_telr_auth_tranref', $tranRef );
-											$subscription_obj->save();
+                                            $subscription_obj->add_meta_data('_telr_auth_tranref',$tranRef);
+                                            $subscription_obj->save();
                                         }
 										
                                     }
@@ -253,7 +253,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                         $order->update_status($default_order_status);
                                     }
                                 }
-								$order->save();
+                                $order->save();
                                 break;
 
                             case '2':
@@ -268,15 +268,15 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                     $newOrderStatus = 'refunded';
                                     $order->update_status($newOrderStatus);    
                                 }else{
-                                    if($order->get_meta( 'is_plugin_refund', true )){						
-                                        if($order->get_meta( 'is_plugin_refund', true ) == '1'){											
+                                    if($order->get_meta('is_plugin_refund',true)){						
+                                        if($order->get_meta('is_plugin_refund',true) == '1'){											
                                             $order->delete_meta_data('is_plugin_refund');
                                         }								
                                     }else{
                                         $refund = wc_create_refund(array('amount' => $tranAmount, 'reason' => 'Order Refunded From Telr Panel ', 'order_id' => $order_id, 'line_items' => array()));
                                     }
                                 }
-								$order->save();
+                                $order->save();
                                 break;
 
                             default:
@@ -332,7 +332,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
             return true;
         }
         
-        wc_gateway_telr()->settings->__set('enabled', 'no');
+        wc_gateway_telr()->settings->__set('enabled','no');
         wc_gateway_telr()->settings->save();
         ?>
         <div class="inline error"><p><strong><?php _e('Gateway disabled', 'wctelr'); ?></strong>: <?php _e('Telr Payments does not support your store currency.', 'wctelr'); ?></p></div>
@@ -381,12 +381,12 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
     */
     public function update_order_status($order_id)
     {
-        $order        = new WC_Order($order_id);
+        $order = new WC_Order($order_id);
         $order_status = $this->default_order_status;
         
         //checking for default order status. If set, apply the default
         
-        $saveCard = $order->get_meta( '_telr_save_token', true );
+        $saveCard = $order->get_meta('_telr_save_token',true);
         $order_status = $this->check_order($order_id, $saveCard);
         if ($order_status == 'processing') {
             $order->payment_complete();
@@ -417,8 +417,8 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
     */
     public function check_order($order_id)
     {	
-		$order = new WC_Order($order_id);
-        $order_ref = $order->get_meta( '_telr_ref', true );
+        $order = new WC_Order($order_id);
+        $order_ref = $order->get_meta('_telr_ref',true);
 
         $data = array(
             'ivp_method'  => "check",
@@ -451,8 +451,8 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
             }
 
 
-            if ($order->get_meta( '_telr_auth_tranref', true )) {
-                $order->delete_meta_data( '_telr_auth_tranref', true );
+            if ($order->get_meta('_telr_auth_tranref',true)) {
+                $order->delete_meta_data('_telr_auth_tranref',true);
             }
 
             if ($transaction_status == 'A') {
@@ -463,25 +463,25 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                         $orderType = OrderUtil::get_order_type( $order_id );
 
                         if($orderType == 'shop_subscription'){
-                            $order->delete_meta_data( '_telr_auth_tranref', true );
-                            $order->add_meta_data( '_telr_auth_tranref', $transaction_ref );
-							$order->save();
+                            $order->delete_meta_data('_telr_auth_tranref',true);
+                            $order->add_meta_data('_telr_auth_tranref',$transaction_ref);
+                            $order->save();
                             return "active";
                         }else{
-                            $order->add_meta_data( '_telr_auth_tranref', $transaction_ref );                             
-                            $order->add_meta_data( '_telr_auth_pay_method', $payMethod ); 
-                            $order->add_meta_data( '_telr_auth_card_type', $cardType );
-                            $order->add_meta_data( '_telr_auth_card_last4', $cardLast4 );
-                            $order->add_meta_data( '_telr_auth_card_country', $cardCountry );
-                            $order->add_meta_data( '_telr_auth_card_first6', $cardFirst6 );
-                            $order->add_meta_data( '_telr_auth_card_expiry_month', $cardExpiryMonth );
-                            $order->add_meta_data( '_telr_auth_card_expiry_year', $cardExpiryYear );
+                            $order->add_meta_data('_telr_auth_tranref',$transaction_ref);                             
+                            $order->add_meta_data('_telr_auth_pay_method',$payMethod); 
+                            $order->add_meta_data('_telr_auth_card_type',$cardType);
+                            $order->add_meta_data('_telr_auth_card_last4',$cardLast4);
+                            $order->add_meta_data('_telr_auth_card_country',$cardCountry);
+                            $order->add_meta_data('_telr_auth_card_first6',$cardFirst6);
+                            $order->add_meta_data('_telr_auth_card_expiry_month',$cardExpiryMonth);
+                            $order->add_meta_data('_telr_auth_card_expiry_year',$cardExpiryYear);
                             $order->save();
                             if ( class_exists( 'WC_Subscriptions_Order' ) ) {
                                 $subscriptions_ids = wcs_get_subscriptions_for_order( $order_id );
                                 foreach( $subscriptions_ids as $subscription_id => $subscription_obj ){
                                     $subscription_obj->add_meta_data( '_telr_auth_tranref', $transaction_ref );
-									$subscription_obj->save();
+                                    $subscription_obj->save();
                                 }
                             }
                             return 'processing';
@@ -532,6 +532,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                 return 'failed';
             }
         }
+        $order->save();
         return 'pending';
     }
 
@@ -739,11 +740,11 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 	    $store_id        = $this->store_id;
         $store_secret    = $this->remote_store_secret;
         $testmode        = $this->testmode == 'yes' ? 1 : 0;
-	    $refund_currency = $order->get_currency();
-	    $order_ref = $order->get_meta( '_telr_auth_tranref', true );
+        $refund_currency = $order->get_currency();
+        $order_ref = $order->get_meta('_telr_auth_tranref',true);
 		
-	    $order->add_meta_data( 'is_plugin_refund', '1' );
-		$order->save();
+        $order->add_meta_data('is_plugin_refund','1');
+        $order->save();
 		
         $this->debug                = wc_gateway_telr()->settings->__get('debug');
         $this->order_status         = wc_gateway_telr()->settings->__get('order_status');
@@ -798,9 +799,9 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 			}
 		}
 		
-		$order->add_order_note('Refund failed');
-		$order->delete_meta_data( 'is_plugin_refund', true );
-		$order->save();
+        $order->add_order_note('Refund failed');
+        $order->delete_meta_data('is_plugin_refund',true);
+        $order->save();
 		
 		return false;
 	}
