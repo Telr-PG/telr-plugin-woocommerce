@@ -268,6 +268,8 @@ class WC_Gateway_Telr_Checkout_Handler
                     $data['repeat_interval'] = $recurrInterval;
                     $data['repeat_start'] = 'next';
                     $data['repeat_term'] = $recurrCount;
+					$data['repeat_auto'] = true;
+					$data['repeat_type'] = 'recurring';
 
                     if( $finalAmount > 0){
                         $data['repeat_final'] = $finalAmount * $productQuantity;    
