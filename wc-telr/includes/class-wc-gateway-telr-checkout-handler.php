@@ -255,7 +255,7 @@ class WC_Gateway_Telr_Checkout_Handler
             $productQuantity = $productInfo['quantity'];
             $productTotal = $productInfo['total'];
             $isSubProduct = get_post_meta($productId, '_subscription_telr', true);
-			$product = wc_get_product( $productId );
+            $product = wc_get_product( $productId );
 				
             if ( class_exists( 'WC_Subscriptions_Order' ) && $this->subs_method == 'woocomm' && 
                 ($product->get_type() == 'subscription' || $product->get_type() == 'variable-subscription')) {
@@ -315,7 +315,7 @@ class WC_Gateway_Telr_Checkout_Handler
             $productId = $productInfo['product_id'];
             $productQuantity = $productInfo['quantity'];
             $productTotal = $productInfo['total'];
-			$product = wc_get_product( $productId );
+            $product = wc_get_product( $productId );
             $isSubProduct = get_post_meta($productId, '_subscription_telr', true);
             if($isSubProduct == 'yes' || $product->get_type() == 'subscription' || $product->get_type() == 'variable-subscription'){
                 $repeatBilling = true;
