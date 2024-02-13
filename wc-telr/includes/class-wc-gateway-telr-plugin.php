@@ -32,7 +32,7 @@ class WC_Gateway_Telr_Plugin
         add_action('plugins_loaded', array($this, 'bootstrap'));
         add_filter('plugin_action_links_' . plugin_basename($this->file), array($this, 'plugin_action_links'));
         add_action('init', array($this, 'init_ssl_check'));
-
+		
         $telrSettings = (array) get_option('woocommerce_wctelr_settings', array());
         if($telrSettings['subscription_method'] == 'telr'){
             add_filter( 'product_type_options', array($this, 'subscription_product_option') );
@@ -41,11 +41,9 @@ class WC_Gateway_Telr_Plugin
             add_filter( 'woocommerce_product_data_panels', array($this, 'recurring_options_product_tab_content') ); 
             add_action('admin_enqueue_scripts', array($this, 'admin_load_js'));
             add_action( 'woocommerce_process_product_meta', array($this, 'woo_add_custom_general_fields_save') );
-
-
         }   
     }
-
+	
     public function bootstrap()
     {
         try {
