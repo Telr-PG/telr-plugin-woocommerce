@@ -32,7 +32,7 @@ class WC_Gateway_Telr_Checkout_Handler
         $order    = new WC_Order($order_id);
       
 
-         if($this->subs_method == 'telr'){
+         if($this->subs_method == 'telr' || $this->subs_method == 'woocomm'){
             if(!$this->validateOrderProducts($order_id)){
                 wc_add_notice("Only 1 Repeat Billing product is allowed per transaction.", 'error');
                 return array(
@@ -246,36 +246,57 @@ class WC_Gateway_Telr_Checkout_Handler
             $data['bill_custref'] = get_current_user_id();
         }
         
-        if($this->subs_method == 'telr'){
-            // Check for Repeat Billig Product
-            $order_items = $order->get_items();
-            foreach ($order_items as $product_data) {
-                $productInfo = $product_data->get_data();
-                $productId = $productInfo['product_id'];
-                $productQuantity = $productInfo['quantity'];
-                $productTotal = $productInfo['total'];
-                $isSubProduct = get_post_meta($productId, '_subscription_telr', true);
-                if($isSubProduct == 'yes'){
-                    $recurrCount = get_post_meta($productId, '_continued_of', true);
-                    $recurrAmount = get_post_meta($productId, '_payment_of', true);
-                    $recurrInterval = get_post_meta($productId, '_every_number_of', true);
-                    $recurrIntUnit = get_post_meta($productId, '_for_number_of', true);
-                    $finalAmount = get_post_meta($productId, '_final_payment_of', true);
-                    $scheduleDate = "";
+        // Check for Repeat Billig Product
+        $order_items = $order->get_items();
+        foreach ($order_items as $product_data) {
+				
+            $productInfo = $product_data->get_data();
+            $productId = $productInfo['product_id'];
+            $productQuantity = $productInfo['quantity'];
+            $productTotal = $productInfo['total'];
+            $isSubProduct = get_post_meta($productId, '_subscription_telr', true);
+            $product = wc_get_product( $productId );
+				
+            if ( class_exists( 'WC_Subscriptions_Order' ) && $this->subs_method == 'woocomm' && 
+                ($product->get_type() == 'subscription' || $product->get_type() == 'variable-subscription')) {
+                $recurrCount = get_post_meta($productId, '_subscription_length', true);
+                if($product->get_type() == 'variable-subscription'){
+                    $recurrAmount = get_post_meta($productId, '_price', true);
+                }else{
+                    $recurrAmount = get_post_meta($productId, '_sale_price', true);
+                }  
+                $recurrInterval = get_post_meta($productId, '_subscription_period_interval', true);
+                $recurrIntUnit = get_post_meta($productId, '_subscription_period', true);
+					
+                $data['repeat_amount'] = $recurrAmount * $productQuantity;
+                $data['repeat_period'] = $recurrIntUnit;
+                $data['repeat_interval'] = $recurrInterval;
+                $data['repeat_start'] = 'next';
+                $data['repeat_term'] = $recurrCount;
+                $data['repeat_auto'] = 0;
+                $data['repeat_type'] = 'recurring';
+					
+            }elseif($this->subs_method == 'telr' && $isSubProduct == 'yes'){
+                $recurrCount = get_post_meta($productId, '_continued_of', true);
+                $recurrAmount = get_post_meta($productId, '_payment_of', true);
+                $recurrInterval = get_post_meta($productId, '_every_number_of', true);
+                $recurrIntUnit = get_post_meta($productId, '_for_number_of', true);
+                $finalAmount = get_post_meta($productId, '_final_payment_of', true);
+                $scheduleDate = "";
                     
-                    $data['repeat_amount'] = $recurrAmount * $productQuantity;
-                    $data['repeat_period'] = $recurrIntUnit;
-                    $data['repeat_interval'] = $recurrInterval;
-                    $data['repeat_start'] = 'next';
-                    $data['repeat_term'] = $recurrCount;
-
-                    if( $finalAmount > 0){
-                        $data['repeat_final'] = $finalAmount * $productQuantity;    
-                    }
+                $data['repeat_amount'] = $recurrAmount * $productQuantity;
+                $data['repeat_period'] = $recurrIntUnit;
+                $data['repeat_interval'] = $recurrInterval;
+                $data['repeat_start'] = 'next';
+                $data['repeat_term'] = $recurrCount;
+                $data['repeat_auto'] = 1;
+                $data['repeat_type'] = 'recurring';
+                if( $finalAmount > 0){
+                    $data['repeat_final'] = $finalAmount * $productQuantity;    
                 }
             }
-            // End Check for Repeat Billing Product
         }
+        // End Check for Repeat Billing Product
 
         $response = $this->api_request($data);
         return $response;
@@ -294,8 +315,9 @@ class WC_Gateway_Telr_Checkout_Handler
             $productId = $productInfo['product_id'];
             $productQuantity = $productInfo['quantity'];
             $productTotal = $productInfo['total'];
+            $product = wc_get_product( $productId );
             $isSubProduct = get_post_meta($productId, '_subscription_telr', true);
-            if($isSubProduct == 'yes'){
+            if($isSubProduct == 'yes' || $product->get_type() == 'subscription' || $product->get_type() == 'variable-subscription'){
                 $repeatBilling = true;
             }
         }

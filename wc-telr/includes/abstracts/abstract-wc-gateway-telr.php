@@ -550,6 +550,9 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
     }
 
     public function payment_fields() {
+		
+		echo $this->description;
+		
         if($this->payment_mode_woocomm == '10'){
             $frameHeight = 320;
 			$lange = wc_gateway_telr()->settings->__get('language');	
