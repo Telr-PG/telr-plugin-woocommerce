@@ -66,7 +66,6 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options'));
         add_action('woocommerce_receipt_' . $this->id, array( $this, 'receipt_page'));
 
-        add_action( 'woocommerce_api_payment-response', array( $this, 'payment_response' ) );
         add_action( 'woocommerce_api_telr-requery', array( $this, 'payment_requery' ) );
         add_action( 'woocommerce_api_apple-ivp-callback', array( $this, 'ivp_check_function' ) );
         add_action( 'woocommerce_api_wc_telr_session', [ $this, 'applepay_sesion' ] );
@@ -279,22 +278,45 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
             );
 		}else{
 			$transactionStatus = $objTransaction['status'];
+			$orderType = OrderUtil::get_order_type($order_id);										 
 			if ($transactionStatus == 'A') {				
 				if ($order->get_meta('_telr_auth_tranref',true)) {
 					$order->delete_meta_data('_telr_auth_tranref',true);
 				}
-				$order->add_meta_data('_telr_auth_tranref',$objTransaction['ref']);
-				$order->save();
-				$order->payment_complete();
-				$default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
-				if ($default_order_status != 'none') {
-					$order->update_status($default_order_status);
-				}	
-				WC()->cart->empty_cart();
-				return array(
-					'result'   => 'success',
-					'redirect' => $this->get_return_url( $order )
-				);
+				
+				if($orderType == 'shop_subscription'){
+					$order->add_meta_data('_telr_auth_tranref',$objTransaction['ref']);
+					$order->save();
+					$subscription_obj = new WC_Subscription($order_id);
+					$subscription_obj->update_status('active');
+					$return_url = home_url() . "/my-account/subscriptions";
+					return array(
+						'result'   => 'success',
+						'redirect' => $return_url
+					);
+				}else{
+					$order->add_meta_data('_telr_auth_tranref',$objTransaction['ref']);
+					$order->save();
+					
+					if ( class_exists( 'WC_Subscriptions_Order' ) ) {
+						$subscriptions_ids = wcs_get_subscriptions_for_order($order_id);
+						foreach( $subscriptions_ids as $subscription_id => $subscription_obj ){
+							$subscription_obj->add_meta_data( '_telr_auth_tranref', $transaction_ref );
+							$subscription_obj->save();
+						}
+					}					
+					$order->payment_complete();
+					$default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
+					if ($default_order_status != 'none') {
+						$order->update_status($default_order_status);
+					}	
+					WC()->cart->empty_cart();
+					return array(
+						'result'   => 'success',
+						'redirect' => $this->get_return_url( $order )
+					);
+					
+				}				
 			}else{
 				wc_add_notice('Invalid Request!', 'error');
 				return array(
@@ -740,8 +762,6 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
     public function process_refund($order_id,$amount = null, $reason = ''){
 
         $order = wc_get_order($order_id);
-        $order->add_order_note('I am here pravin bhakare');
-
         // Check if the order exists
         if (!$order) {
             return false;

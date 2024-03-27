@@ -150,7 +150,7 @@ class WC_Gateway_Telr_Checkout_Handler
     * @access public
     * @return array
     */
-    private function generate_request($order)
+    public function generate_request($order)
     {
         global $woocommerce;
 
@@ -266,11 +266,11 @@ class WC_Gateway_Telr_Checkout_Handler
             if ( class_exists( 'WC_Subscriptions_Order' ) && $this->subs_method == 'woocomm' && 
                 ($product->get_type() == 'subscription' || $product->get_type() == 'variable-subscription')) {
                 $recurrCount = get_post_meta($productId, '_subscription_length', true);
-                if($product->get_type() == 'variable-subscription'){
-                    $recurrAmount = get_post_meta($productId, '_price', true);
-                }else{
-                    $recurrAmount = get_post_meta($productId, '_sale_price', true);
-                }  
+                if(empty(get_post_meta($productId, '_sale_price', true)) || get_post_meta($productId, '_sale_price', true) <= 0 ){
+					$recurrAmount = get_post_meta($productId, '_subscription_price', true);
+				}else{
+					$recurrAmount = get_post_meta($productId, '_sale_price', true);
+				}
                 $recurrInterval = get_post_meta($productId, '_subscription_period_interval', true);
                 $recurrIntUnit = get_post_meta($productId, '_subscription_period', true);
 					
@@ -351,7 +351,6 @@ class WC_Gateway_Telr_Checkout_Handler
         $cart_desc  = preg_replace('/{order_id}/i', $order_id, $cart_desc);
         $cart_desc = str_replace("&amp;", "&", $cart_desc);
         $cart_desc = preg_replace('/{product_names}/i', $productinorder, $cart_desc);
-	    $ivp_callback_url = get_site_url() . "/wc-api/apple-ivp-callback?cart_id=" . $cart_id;
         $cart_desc = substr($cart_desc,0,63);             
         $order->add_meta_data('_telr_cartdesc',$cart_desc);
         $order->save();        
@@ -378,7 +377,6 @@ class WC_Gateway_Telr_Checkout_Handler
            'bill_country'    => $order->get_billing_country(),
            'bill_email'      => $order->get_billing_email(),
 	       'bill_tel'        => $order->get_billing_phone(),
-	       'ivp_update_url'  => $ivp_callback_url,
 	       'applepay_enc_version'  => $applePayData['applePayVersion'],
 	       'applepay_enc_paydata'  => urlencode($applePayData['applePayData']),
 	       'applepay_enc_paysig'   => urlencode($applePayData['applePaySignature']),
@@ -390,6 +388,58 @@ class WC_Gateway_Telr_Checkout_Handler
 	       'applepay_card_type'    => $applePayData['applePayNetwork'],
 	       'applepay_tran_id2'     => $applePayData['applePayTransactionIdentifier']
 	    );
+		
+		// Check for Repeat Billig Product
+        $order_items = $order->get_items();
+        foreach ($order_items as $product_data) {
+				
+            $productInfo = $product_data->get_data();
+            $productId = $productInfo['product_id'];
+            $productQuantity = $productInfo['quantity'];
+            $productTotal = $productInfo['total'];
+            $isSubProduct = get_post_meta($productId, '_subscription_telr', true);
+            $product = wc_get_product( $productId );
+				
+            if ( class_exists( 'WC_Subscriptions_Order' ) && $this->subs_method == 'woocomm' && 
+                ($product->get_type() == 'subscription' || $product->get_type() == 'variable-subscription')) {
+                $recurrCount = get_post_meta($productId, '_subscription_length', true);
+				if(empty(get_post_meta($productId, '_sale_price', true)) || get_post_meta($productId, '_sale_price', true) <= 0 ){
+					$recurrAmount = get_post_meta($productId, '_subscription_price', true);
+				}else{
+					$recurrAmount = get_post_meta($productId, '_sale_price', true);
+				}				
+                $recurrInterval = get_post_meta($productId, '_subscription_period_interval', true);
+                $recurrIntUnit = get_post_meta($productId, '_subscription_period', true);
+					
+                $params['repeat_amount'] = $recurrAmount * $productQuantity;
+                $params['repeat_period'] = $recurrIntUnit;
+                $params['repeat_interval'] = $recurrInterval;
+                $params['repeat_start'] = 'next';
+                $params['repeat_term'] = $recurrCount;
+                $params['repeat_auto'] = 0;
+                $params['repeat_type'] = 'recurring';
+					
+            }elseif($this->subs_method == 'telr' && $isSubProduct == 'yes'){
+                $recurrCount = get_post_meta($productId, '_continued_of', true);
+                $recurrAmount = get_post_meta($productId, '_payment_of', true);
+                $recurrInterval = get_post_meta($productId, '_every_number_of', true);
+                $recurrIntUnit = get_post_meta($productId, '_for_number_of', true);
+                $finalAmount = get_post_meta($productId, '_final_payment_of', true);
+                $scheduleDate = "";
+				
+                $params['repeat_amount'] = $recurrAmount * $productQuantity;
+                $params['repeat_period'] = $recurrIntUnit;
+                $params['repeat_interval'] = $recurrInterval;
+                $params['repeat_start'] = 'next';
+                $params['repeat_term'] = $recurrCount;
+                $params['repeat_auto'] = 1;
+                $params['repeat_type'] = 'recurring';
+                if( $finalAmount > 0){
+                    $params['repeat_final'] = $finalAmount * $productQuantity;    
+                }
+            }
+        }
+        // End Check for Repeat Billing Product
 		
         $response = $this->remoteApiRequest($params);
         return $response;			 
