@@ -16,6 +16,7 @@ class WC_Gateway_telr_Gateway_Loader
         $includes_path = wc_gateway_telr()->includes_path;
 
         require_once($includes_path . 'class-wc-gateway-telr.php');
+		require_once($includes_path . 'class-wc-gateway-telr-apple.php');														   
 
         add_filter('woocommerce_payment_gateways', array($this, 'payment_gateways'));
     }
@@ -30,6 +31,7 @@ class WC_Gateway_telr_Gateway_Loader
     public function payment_gateways($methods)
     {
         $methods[] = 'WC_Gateway_Telr';
+		$methods[] = 'WC_Gateway_Telr_Apple';							   
         return $methods;
     }
 }

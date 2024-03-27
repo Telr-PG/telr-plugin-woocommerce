@@ -333,6 +333,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
         }
         
         wc_gateway_telr()->settings->__set('enabled','no');
+		wc_gateway_telr()->settings->__set('enable_apple','no');														
         wc_gateway_telr()->settings->save();
         ?>
         <div class="inline error"><p><strong><?php _e('Gateway disabled', 'wctelr'); ?></strong>: <?php _e('Telr Payments does not support your store currency.', 'wctelr'); ?></p></div>
@@ -343,6 +344,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
     {
         $plugin_data = get_plugin_data(ABSPATH. 'wp-content/plugins/wc-telr/wc-telr.php');
         $plugin_version = $plugin_data['Version'];
+		wc_gateway_telr()->admin->generate_links();										   
  
     ?>
         <h3><?php _e('Telr ', 'wctelr'); ?><span><?php echo 'Version '.$plugin_version; ?></span> </h3>
