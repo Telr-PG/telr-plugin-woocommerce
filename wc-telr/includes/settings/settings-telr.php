@@ -154,14 +154,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     public static function apple_pay_settings() {
 		
 	return array(    	
-		
-     		'enable_apple' => array(
-     			'id'        => 'enable_apple',
-			'title'     => __('Enable/Disable', 'wctelr'),
-			'type'      => 'checkbox',
-			'label'     => __('Enable', 'wctelr'),
-			'default'   => 'yes'
-		),
+		     	
 		'remote_v2_auth_key'  => array(
 			'title'       => __( 'Remote V2 Authentication Key', 'wctelr' ),
 			'type'        => 'text',

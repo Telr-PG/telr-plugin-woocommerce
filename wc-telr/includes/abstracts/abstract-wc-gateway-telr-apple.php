@@ -371,7 +371,6 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         if ( $mada_enabled ) {
             array_push( $supported_networks, 'mada' );
             $country_code = 'SA';
-
             $merchant_capabilities = array_values( array_diff( $merchant_capabilities, [ 'supportsEMV' ] ) );
         }
 
@@ -550,18 +549,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 			jQuery('<input>').attr({type: 'hidden',	id: 'applePayKeyHash', name: 'applePayKeyHash',	value: applePayKeyHash}).appendTo(jQuery('.woocommerce-checkout'));
 			jQuery('<input>').attr({type: 'hidden',	id: 'applePayKey', name: 'applePayKey',	value: applePayKey}).appendTo(jQuery('.woocommerce-checkout'));
 			jQuery('<input>').attr({type: 'hidden',	id: 'applePayTransactionIdentifier', name: 'applePayTransactionIdentifier',	value: applePayTransactionIdentifier}).appendTo(jQuery('.woocommerce-checkout'));
-
-			/*var response = {};
-			response.data = JSON.stringify({ "data" : data});
-			console.log(response.data);
-			jQuery.each(response, function (k, v) {
-				jQuery('<input>').attr({
-					type: 'hidden',
-					id: k,
-					name: k,
-					value: v
-				}).appendTo(jQuery('.woocommerce-checkout'));
-	        	});*/
+			
 			jQuery('#place_order').prop("disabled",false);
 			jQuery('#place_order').trigger('click');
 		}
@@ -622,25 +610,27 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 					jQuery( '#place_order' ).show();
 					// Hide apple pay button.
 					jQuery( '#telr_applePay' ).hide();
-				}
-				// On payment radio button click.
-				jQuery( "input[name='payment_method']" ).on( 'click', function () {
-					// Check if payment method is apple Pay.
-					if ( this.value == 'wc_telr_apple_pay' ) {
-						// Hide default place order button.
-						jQuery( '#place_order' ).hide();
-						// Show Apple Pay button.
-						jQuery( '#telr_applePay' ).show();
-					} else {console.log('this.value1');
-						// Enable place order button.
-						jQuery( '#place_order' ).show();
-						// Hide apple pay button.
-						jQuery( '#telr_applePay' ).hide();
-					}
-				} )
+				}				
 			} else {
 				jQuery( '#place_order' ).prop( "disabled", false );
 			}
+			
+			// On payment radio button click.
+			jQuery( "input[name='payment_method']" ).on( 'click', function () {
+					// Check if payment method is apple Pay.
+					if ( this.value == 'wc_telr_apple_pay' ) {
+							setTimeout(function(){
+								jQuery( '#place_order' ).hide();
+							}, 100);
+							// Show Apple Pay button.
+							jQuery( '#telr_applePay' ).show();
+					} else {
+							// Enable place order button.
+							jQuery( '#place_order' ).show();
+							// Hide apple pay button.
+							jQuery( '#telr_applePay' ).hide();
+					}
+			} );
 		}
 		// Initialise apple pay when page is ready
 		jQuery( document ).ready(function() {
