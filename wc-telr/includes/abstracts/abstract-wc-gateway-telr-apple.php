@@ -40,7 +40,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         $this->description          = wc_gateway_telr()->settings->__get('apple_pay_description');
 		
         $this->store_id             = wc_gateway_telr()->settings->__get('store_id');
-        
+        $this->subs_method          = wc_gateway_telr()->settings->__get('subscription_method');
         $this->store_secret         = wc_gateway_telr()->settings->__get('store_secret');
         $this->remote_store_secret  = wc_gateway_telr()->settings->__get('remote_store_secret');																						 
         $this->testmode             = wc_gateway_telr()->settings->__get('testmode');
@@ -61,6 +61,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         $this->apple_type           = wc_gateway_telr()->settings->__get('apple_type');
         $this->apple_theme          = wc_gateway_telr()->settings->__get('apple_theme');
         $this->enable_mada          = wc_gateway_telr()->settings->__get('enable_mada');
+        $this->enable_amex          = wc_gateway_telr()->settings->__get('enable_amex');
         
         //actions
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options'));
@@ -350,6 +351,41 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 
     public function payment_fields() {
         global $woocommerce;
+        $subscriptionProduct = false;
+        $subscriptionProductCount = 0;
+        $cart_desc = trim(wc_gateway_telr()->settings->__get('cart_desc'));
+        $items = $woocommerce->cart->get_cart();
+        foreach($items as $item => $values) {
+            $productId = $values['data']->get_id();
+            $_product =  wc_get_product($productId);
+            $isSubProduct = get_post_meta($productId, '_subscription_telr', true);			
+            if ( class_exists( 'WC_Subscriptions_Order' ) && $this->subs_method == 'woocomm' && 
+            ($_product->get_type() == 'subscription' || $_product->get_type() == 'variable-subscription'))
+            {				
+                $subscriptionProduct = true;
+                if(empty(get_post_meta($productId, '_sale_price', true)) || get_post_meta($productId, '_sale_price', true) <= 0 ){
+                    $recurrAmount = get_post_meta($productId, '_subscription_price', true);
+                }else{
+                    $recurrAmount = get_post_meta($productId, '_sale_price', true);
+                }				
+                $amount = $recurrAmount * $values['quantity'];
+                $recurrInterval = get_post_meta($productId, '_subscription_period_interval', true);
+                $recurrIntUnit = get_post_meta($productId, '_subscription_period', true);
+                $subscriptionProductCount = $subscriptionProductCount + 1;	
+            }elseif($this->subs_method == 'telr' && $isSubProduct == 'yes'){
+                $subscriptionProduct = true;
+                $recurrIntUnit = get_post_meta($productId, '_for_number_of', true);
+                if($recurrIntUnit == 'W'){
+                    $recurrIntUnit = 'week';
+                }elseif($recurrIntUnit == 'M'){
+                    $recurrIntUnit = 'month'; 
+                }
+                $recurrInterval = get_post_meta($productId, '_every_number_of', true);
+                $recurrAmount = get_post_meta($productId, '_payment_of', true);
+                $amount = $recurrAmount * $values['quantity'];
+                $subscriptionProductCount = $subscriptionProductCount + 1;
+            }  
+        }
 
         $chosen_methods     = wc_get_chosen_shipping_method_ids();
         $chosen_shipping    = $chosen_methods[0] ?? '';
@@ -358,6 +394,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         $session_url        = str_replace('https:', 'https:', add_query_arg( 'wc-api', 'wc_telr_session', home_url( '/' ) ) );
         $generate_token_url = str_replace('https:', 'https:', add_query_arg( 'wc-api', 'wc_telr_generate_token', home_url( '/' ) ) );
         $mada_enabled       = isset($this->enable_mada) && ('yes' === $this->enable_mada);
+        $amex_enabled       = isset($this->enable_amex) && ('yes' === $this->enable_amex);
 
         if ( ! empty($this->description) ) {
             echo  $this->description;
@@ -365,19 +402,23 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 
         // get country of current user.
         $country_code          = WC()->customer->get_billing_country();
-        $supported_networks    = [ 'amex', 'masterCard', 'visa' ];
-        $merchant_capabilities = [ 'supports3DS', 'supportsEMV', 'supportsCredit', 'supportsDebit' ];
+        $supported_networks    = ['masterCard','visa'];
+        $merchant_capabilities = [ 'supports3DS', 'supportsCredit', 'supportsDebit' ];
 
         if ( $mada_enabled ) {
             array_push( $supported_networks, 'mada' );
             $country_code = 'SA';
-            $merchant_capabilities = array_values( array_diff( $merchant_capabilities, [ 'supportsEMV' ] ) );
+        }
+		
+        if ( $amex_enabled ) {
+            array_push( $supported_networks, 'amex' );
         }
 
         ?>
 
         <!-- Input needed to sent the card token -->
         <input type="hidden" id="telr-apple-card-token" name="telr-apple-card-token" value="" />
+        <input type="hidden" id="subscriptionProductCount" value="<?php echo $subscriptionProductCount; ?>" />																								
 
         <!-- ApplePay warnings -->
         <p style="display:none" id="telr_applePay_not_actived">ApplePay is possible on this browser, but not currently activated.</p>
@@ -415,7 +456,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
             var checkoutFields = '<?php echo $checkout_fields; ?>';
             var result = isValidFormField(checkoutFields);
             if(result){
-                var applePaySession = new ApplePaySession(3, getApplePayConfig());
+                var applePaySession = new ApplePaySession(3, getApplePayRequestPayload());
                 handleApplePayEvents(applePaySession);
                 applePaySession.begin();
             }
@@ -425,7 +466,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 		 *
 		 * @param {function} callback
 		 */
-		function getApplePayConfig() {
+		function getApplePayRequestPayload() {
 			var networksSupported = <?php echo json_encode( $supported_networks ); ?>;
 			var merchantCapabilities = <?php echo json_encode( $merchant_capabilities ); ?>;
 			return {
@@ -433,6 +474,20 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 				countryCode: "<?php echo $country_code; ?>",
 				merchantCapabilities: merchantCapabilities,
 				supportedNetworks: networksSupported,
+				<?php if($subscriptionProduct == true){ ?>
+				recurringPaymentRequest : {
+					paymentDescription :"<?php echo $cart_desc; ?>",
+					regularBilling : {
+						label:'',
+						amount:<?php echo $amount; ?>,
+						recurringPaymentStartDate: new Date('<?php echo date('Y-m-d'); ?>'),
+						recurringPaymentIntervalUnit:"<?php echo $recurrIntUnit; ?>",
+						recurringPaymentIntervalCount:<?php echo $recurrInterval; ?>,
+						paymentTiming:'recurring'
+					},
+					managementURL:"<?php echo get_site_url(); ?>",
+				},
+				<?php } ?>
 				total: {
 					label: window.location.host,
 					amount: "<?php echo $woocommerce->cart->total; ?>",
@@ -595,39 +650,27 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 		* Show the Apple Pay payment option on the checkout page.
 		*/
 		function showAppleApplePayOption() {
-			jQuery( applePayOptionSelector ).show();
-			// jQuery('.apple-pay-button').show();
-			// jQuery(applePayOptionBodySelector).show();
+			jQuery( applePayOptionSelector ).show();			
 			if ( jQuery( '.payment_method_wc_telr_apple_pay' ).is( ':visible' ) ) {
-				//check if Apple Pay method is checked.
 				if ( jQuery( '#payment_method_wc_telr_apple_pay' ).is( ':checked' ) ) { 
-					// Disable place order button.
 					jQuery( '#place_order' ).hide();
-					// Show Apple Pay button.
 					jQuery( '#telr_applePay' ).show();
 				} else {
-					// Show default place order button.
 					jQuery( '#place_order' ).show();
-					// Hide apple pay button.
 					jQuery( '#telr_applePay' ).hide();
 				}				
 			} else {
 				jQuery( '#place_order' ).prop( "disabled", false );
-			}
-			
+			}			
 			// On payment radio button click.
 			jQuery( "input[name='payment_method']" ).on( 'click', function () {
-					// Check if payment method is apple Pay.
 					if ( this.value == 'wc_telr_apple_pay' ) {
 							setTimeout(function(){
 								jQuery( '#place_order' ).hide();
 							}, 100);
-							// Show Apple Pay button.
 							jQuery( '#telr_applePay' ).show();
 					} else {
-							// Enable place order button.
 							jQuery( '#place_order' ).show();
-							// Hide apple pay button.
 							jQuery( '#telr_applePay' ).hide();
 					}
 			} );
@@ -640,6 +683,10 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 		function isValidFormField(fieldList) {
 			var result = {error: false, messages: []};
 			var fields = JSON.parse(fieldList);
+			if(jQuery('#subscriptionProductCount').val() > 1){
+				result.error = true;
+				result.messages.push({target: false, message : 'Only 1 Repeat Billing product is allowed per transaction.'});
+			}
 			if(jQuery('#terms').length === 1 && jQuery('#terms:checked').length === 0){
 				result.error = true;
 				result.messages.push({target: 'terms', message : 'You must accept our Terms & Conditions.'});

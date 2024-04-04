@@ -28,11 +28,10 @@ class WC_Gateway_Telr_Plugin
     {
         register_activation_hook($this->file, array($this, 'activate'));
         register_deactivation_hook($this->file, array($this, 'deactivate'));
-        //add_action( 'admin_menu', array( $this, 'wpa_add_menu' ));
         add_action('plugins_loaded', array($this, 'bootstrap'));
         add_filter('plugin_action_links_' . plugin_basename($this->file), array($this, 'plugin_action_links'));
         add_action('init', array($this, 'init_ssl_check'));
-		add_action('wp_enqueue_scripts', array($this, 'callback_for_setting_up_scripts'));																				  
+        add_action('wp_enqueue_scripts', array($this, 'callback_for_setting_up_scripts'));																				  
 		
         $telrSettings = (array) get_option('woocommerce_wctelr_settings', array());
         if($telrSettings['subscription_method'] == 'telr'){

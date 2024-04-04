@@ -306,7 +306,7 @@ class WC_Gateway_Telr_Checkout_Handler
 
         $response = $this->api_request($data);
         return $response;
-	
+	}
 	
 	/*
     * generate apple pay request for api request

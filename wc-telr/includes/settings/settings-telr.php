@@ -158,7 +158,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		'remote_v2_auth_key'  => array(
 			'title'       => __( 'Remote V2 Authentication Key', 'wctelr' ),
 			'type'        => 'text',
-			'description' => __( 'This value must match the value configured in the hosted payment page Remote V2 settings', 'wctelr' ),
+			'description' => __( 'This value must match the value configured in the Remote V2 settings', 'wctelr' ),
 			'desc_tip'    => true,
 			'default'     => '',
 		),
@@ -198,7 +198,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			'desc_tip'    => true,
 			'default'     => '',
 		),
-                'domain' => array(
+        'domain' => array(
 			'title'       => __( 'Domain', 'wctelr' ),
 			'type'        => 'text',
 			'label'       => __( 'Domain', 'wctelr' ),
@@ -206,7 +206,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			'desc_tip'    => true,
 			'default'     => '',
 		),
-                'display_name' => array(
+        'display_name' => array(
 			'title'       => __( 'Display Name', 'wctelr' ),
 			'type'        => 'text',
 			'label'       => __( 'Display Name', 'wctelr' ),
@@ -240,6 +240,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 			'type'      => 'checkbox',
 			'label'     => __('Enable MADA', 'wctelr'),
 			'description' => __( 'Please enable if entity is in Saudi Arabia', 'wctelr' ),
+			'desc_tip'    => true,
+			'default'   => 'no'
+		),
+        'enable_amex' => array(
+			'id'        => 'enable_amex_apple_pay',
+			'title'     => __('Enable Amex', 'wctelr'),
+			'type'      => 'checkbox',
+			'label'     => __('Enable Amex', 'wctelr'),
+			'description' => __( 'Please enable if amex is required', 'wctelr' ),
 			'desc_tip'    => true,
 			'default'   => 'no'
 		),
