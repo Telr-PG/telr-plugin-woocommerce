@@ -418,18 +418,12 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 
         <!-- Input needed to sent the card token -->
         <input type="hidden" id="telr-apple-card-token" name="telr-apple-card-token" value="" />
-        <input type="hidden" id="subscriptionProductCount" value="<?php echo $subscriptionProductCount; ?>" />																								
-
-        <!-- ApplePay warnings -->
-        <p style="display:none" id="telr_applePay_not_actived">ApplePay is possible on this browser, but not currently activated.</p>
-        <p style="display:none" id="telr_applePay_not_possible">ApplePay is not available on this browser</p>
+        <input type="hidden" id="subscriptionProductCount" value="<?php echo $subscriptionProductCount; ?>" />		
 	<p class="telr_applePay_error"></p>
 	<script type="text/javascript">
         var paymentData = {};
         var applePayOptionSelector = 'li.payment_method_wc_telr_apple_pay';
-        var applePayButtonId = 'telr_applePay';           
-        var applePayNotActivated = document.getElementById('telr_applePay_not_actived');
-        var applePayNotPossible = document.getElementById('telr_applePay_not_possible');
+        var applePayButtonId = 'telr_applePay'; 
         // Initially hide the Apple Pay as a payment option.
         hideAppleApplePayOption();
         // If Apple Pay is available as a payment option, and enabled on the checkout page, un-hide the payment option.
@@ -439,11 +433,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
                 setTimeout( function() {
                     showAppleApplePayOption();
                 }, 500 );
-			} else {
-				displayApplePayNotPossible();
 			}
-		} else {
-			displayApplePayNotPossible();
 		}
         // Display the button and remove the default place order.
         checkoutInitialiseApplePay = function () {
@@ -627,19 +617,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 					callback(data);
 				}
 			});
-		}            
-		/**
-		* This will display the Apple Pay not activated message.
-		*/
-		function displayApplePayNotActivated() {
-			applePayNotActivated.style.display = '';
-		}
-		/**
-		* This will display the Apple Pay not possible message.
-		*/
-		function displayApplePayNotPossible() {
-			applePayNotPossible.style.display = '';
-		}
+		}  
 		/**
 		* Hide the Apple Pay payment option from the checkout page.
 		*/
