@@ -20,6 +20,7 @@ class WC_Gateway_Telr_Checkout_Handler
         $this->payment_mode = wc_gateway_telr()->settings->__get('payment_mode');
         $this->payment_mode_woocomm = wc_gateway_telr()->settings->__get('payment_mode');
         $this->subs_method = wc_gateway_telr()->settings->__get('subscription_method');
+		$this->tran_type = wc_gateway_telr()->settings->__get('tran_type');
     }
     
     /*
@@ -74,8 +75,12 @@ class WC_Gateway_Telr_Checkout_Handler
         }
         
         $order->update_meta_data('_telr_ref',$telr_ref);
-
         $order->update_status('wc-pending');
+		
+		if ($order->get_meta('_telr_tran_type',true)) {
+			$order->delete_meta_data('_telr_tran_type',true);
+		}
+		$order->add_meta_data('_telr_tran_type',$this->tran_type);
         
         if(is_ssl() && ($this->payment_mode_woocomm == 2 || $this->payment_mode_woocomm == '9' || $this->payment_mode_woocomm == '10') && !isset($_POST['woocommerce_change_payment'])) {
             if ($order->get_meta('_telr_url',true)) {
@@ -227,6 +232,7 @@ class WC_Gateway_Telr_Checkout_Handler
             'ivp_amount'      => $payAmount,
             'ivp_lang'        => $ivp_lang,
             'ivp_currency'    => get_woocommerce_currency(),
+			'ivp_trantype'    => $this->tran_type,
             'ivp_desc'        => $cart_desc,
             'return_auth'     => $return_url,
             'return_can'      => $cancel_url,
@@ -365,7 +371,7 @@ class WC_Gateway_Telr_Checkout_Handler
 	       'ivp_desc'        => $cart_desc,
 	       'ivp_currency'    => get_woocommerce_currency(),
 	       'ivp_cart'        => $cart_id,
-	       'ivp_trantype'    => 'sale',
+	       'ivp_trantype'    => $this->tran_type,
 	       'ivp_tranclass'   => 'ecom',
 	       'bill_fname'      => $order->get_billing_first_name(),
            'bill_sname'      => $order->get_billing_last_name(),

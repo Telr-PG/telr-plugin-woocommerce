@@ -94,6 +94,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 				'desc_tip'      => false,
 				'placeholder'   => '[Remote API Authentication Key]'
 			),
+            'tran_type' => array(
+                'title'           => __('Transaction Type', 'wctelr'),
+                'type'            => 'select',
+                'options'         => array(
+				    'sale'       => __( 'Sale', 'wctelr' ),
+				    'auth'          => __( 'Auth', 'wctelr' ),
+				),
+				'default'         => 'sale',
+				'desc_tip'        => false
+            ),
 			'payment_mode' => array(
 				'title'           => __('Payment Mode', 'wctelr'),
 				'type'            => 'select',
@@ -154,9 +164,14 @@ if ( ! defined( 'ABSPATH' ) ) {
     public static function apple_pay_settings() {
 		
 	return array(    	
-		     	
+		'enable_apple' => array(
+			'title'     => __('Enable/Disable', 'wctelr'),
+			'type'      => 'checkbox',
+			'label'     => __('Enable ApplePay', 'wctelr'),
+			'default'   => 'yes'
+		),     	
 		'remote_v2_auth_key'  => array(
-			'title'       => __( 'Remote V2 Authentication Key', 'wctelr' ),
+			'title'       => __( 'Telr Apple Auth Key', 'wctelr' ),
 			'type'        => 'text',
 			'description' => __( 'This value must match the value configured in the Remote V2 settings', 'wctelr' ),
 			'desc_tip'    => true,
@@ -233,26 +248,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				'apple-pay-button-white-with-text' => __( 'White', 'wctelr' ),
 				'apple-pay-button-white-with-line-with-text' => __( 'White with outline', 'wctelr' ),
 			),
-		),
-		'enable_mada' => array(
-			'id'        => 'enable_mada_apple_pay',
-			'title'     => __('Enable MADA', 'wctelr'),
-			'type'      => 'checkbox',
-			'label'     => __('Enable MADA', 'wctelr'),
-			'description' => __( 'Please enable if entity is in Saudi Arabia', 'wctelr' ),
-			'desc_tip'    => true,
-			'default'   => 'no'
-		),
-        'enable_amex' => array(
-			'id'        => 'enable_amex_apple_pay',
-			'title'     => __('Enable Amex', 'wctelr'),
-			'type'      => 'checkbox',
-			'label'     => __('Enable Amex', 'wctelr'),
-			'description' => __( 'Please enable if amex is required', 'wctelr' ),
-			'desc_tip'    => true,
-			'default'   => 'no'
-		),
+		)		
 	);
 		
-     }	
+    }	
  }

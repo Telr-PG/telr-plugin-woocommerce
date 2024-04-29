@@ -51,6 +51,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         $this->language             = wc_gateway_telr()->settings->__get('language');
         $this->default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
         $this->payment_mode_woocomm = wc_gateway_telr()->settings->__get('payment_mode');
+        $this->tran_type            = wc_gateway_telr()->settings->__get('tran_type');
 
         $this->enable_apple         = wc_gateway_telr()->settings->__get('enable_apple');
         $this->apple_mercahnt_id    = wc_gateway_telr()->settings->__get('apple_mercahnt_id');
@@ -60,8 +61,6 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         $this->display_name         = wc_gateway_telr()->settings->__get('display_name');
         $this->apple_type           = wc_gateway_telr()->settings->__get('apple_type');
         $this->apple_theme          = wc_gateway_telr()->settings->__get('apple_theme');
-        $this->enable_mada          = wc_gateway_telr()->settings->__get('enable_mada');
-        $this->enable_amex          = wc_gateway_telr()->settings->__get('enable_amex');
         
         //actions
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options'));
@@ -72,12 +71,21 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         add_action( 'woocommerce_api_wc_telr_session', [ $this, 'applepay_sesion' ] );
         add_action( 'woocommerce_api_wc_telr_generate_token', [ $this, 'applepay_token' ] );
         add_action( 'wp_enqueue_scripts', array( $this, 'wpcheckout_dequeue_and_then_enqueue'), 11 );
+        add_action('wp_ajax_capture_payment', array($this,'capture_payment'));
 
         if ( class_exists( 'WC_Subscriptions_Order' ) ) {
             add_action( 'woocommerce_scheduled_subscription_payment_' . $this->id, array( $this, 'scheduled_subscription_payment' ), 10, 2 );
         }
     }
 
+    public function capture_payment(){		
+        return wc_gateway_telr()->admin->trigger_capture_payment();		
+    }
+	
+    public function process_refund($order_id,$amount = null, $reason = ''){		 		 
+        return wc_gateway_telr()->admin->trigger_refund($order_id,$amount,$reason);
+    }
+	
     function wpcheckout_dequeue_and_then_enqueue() {
         global $wp_scripts;
         $wp_scripts->registered['wc-checkout']->src = plugin_dir_url( __FILE__ ) . 'js/checkout.min.js';
@@ -220,8 +228,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         ?>
         <h3><?php _e('Telr ', 'wctelr'); ?><span><?php echo 'Version '.$plugin_version; ?></span> </h3>
         <div id="wc_get_started">
-            <span class="main"><?php _e('Telr Hosted Payment Page', 'wctelr'); ?></span>
-            <span><a href="https://www.telr.com/" target="_blank">Telr</a> <?php _e('are a PCI DSS Level 1 certified payment gateway. We guarantee that we will handle the storage, processing and transmission of your customer\'s cardholder data in a manner which meets or exceeds the highest standards in the industry.', 'wctelr'); ?></span>
+            <span>Merchant must have ApplePay developer account in order to have ApplePay enabled, please login to your ApplePay developer account and provide the below requested ApplePay credentials and certificates. For queries please <p><a href="mailto:support@telr.com">Send email to Telr support</a></p></span>
             <span><br><b>NOTE: </b> You must enter your store ID and authentication key</span>
         </div>
 
@@ -266,6 +273,12 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 		$order    = new WC_Order($order_id);
 		$applePayData = $_POST;
 		$results   = wc_gateway_telr()->checkout->generate_applepay_request($order,$applePayData);
+		if ($order->get_meta('_telr_tran_type',true)) {
+			$order->delete_meta_data('_telr_tran_type',true);
+		}
+		$order->add_meta_data('_telr_tran_type',$this->tran_type);
+		$order->save();
+		
 		$objTransaction='';
 		$objError='';
 		if (isset($results['transaction'])) { $objTransaction = $results['transaction']; }
@@ -307,16 +320,19 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 						}
 					}					
 					$order->payment_complete();
-					$default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
-					if ($default_order_status != 'none') {
-						$order->update_status($default_order_status);
-					}	
+					if($order->get_meta('_telr_tran_type',true) == 'auth'){
+					    $order->update_status('wc-pending');
+					}else{
+						$default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
+						if ($default_order_status != 'none' ) {
+							$order->update_status($default_order_status);
+						}
+					} 	
 					WC()->cart->empty_cart();
 					return array(
 						'result'   => 'success',
 						'redirect' => $this->get_return_url( $order )
-					);
-					
+					);					
 				}				
 			}else{
 				wc_add_notice('Invalid Request!', 'error');
@@ -339,7 +355,6 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
     {
         wc_gateway_telr()->checkout->receipt_page($order_id);
     }
-    
     
     /**
      * initialize Gateway Settings Form Fields.
@@ -393,8 +408,6 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         $checkout_fields    = json_encode($woocommerce->checkout->checkout_fields, JSON_HEX_APOS);
         $session_url        = str_replace('https:', 'https:', add_query_arg( 'wc-api', 'wc_telr_session', home_url( '/' ) ) );
         $generate_token_url = str_replace('https:', 'https:', add_query_arg( 'wc-api', 'wc_telr_generate_token', home_url( '/' ) ) );
-        $mada_enabled       = isset($this->enable_mada) && ('yes' === $this->enable_mada);
-        $amex_enabled       = isset($this->enable_amex) && ('yes' === $this->enable_amex);
 
         if ( ! empty($this->description) ) {
             echo  $this->description;
@@ -405,29 +418,38 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         $supported_networks    = ['masterCard','visa'];
         $merchant_capabilities = [ 'supports3DS', 'supportsCredit', 'supportsDebit' ];
 
-        if ( $mada_enabled ) {
+        $telrSupportedNetworks = $this->getTelrSupportedNetworks();
+		
+        if (in_array('APPLEPAY MADA',$telrSupportedNetworks)) {
             array_push( $supported_networks, 'mada' );
             $country_code = 'SA';
-        }
-		
-        if ( $amex_enabled ) {
+        }		
+        if (in_array('APPLEPAY AMEX',$telrSupportedNetworks)) {
             array_push( $supported_networks, 'amex' );
+        }
+		if (in_array('APPLEPAY DISCOVER',$telrSupportedNetworks)) {
+            array_push( $supported_networks, 'discover' );
+        }
+		if (in_array('APPLEPAY JCB',$telrSupportedNetworks)) {
+            array_push( $supported_networks, 'jcb' );
         }
 
         ?>
 
         <!-- Input needed to sent the card token -->
         <input type="hidden" id="telr-apple-card-token" name="telr-apple-card-token" value="" />
-        <input type="hidden" id="subscriptionProductCount" value="<?php echo $subscriptionProductCount; ?>" />		
+        <input type="hidden" id="subscriptionProductCount" value="<?php echo $subscriptionProductCount; ?>" />
+		<input type="hidden" id="appleEnableConfig" value="<?php echo $this->enable_apple; ?>" />
 	<p class="telr_applePay_error"></p>
 	<script type="text/javascript">
         var paymentData = {};
         var applePayOptionSelector = 'li.payment_method_wc_telr_apple_pay';
-        var applePayButtonId = 'telr_applePay'; 
+        var applePayButtonId = 'telr_applePay';
+        var appleEnableConfig = document.getElementById('appleEnableConfig').value;		
         // Initially hide the Apple Pay as a payment option.
         hideAppleApplePayOption();
         // If Apple Pay is available as a payment option, and enabled on the checkout page, un-hide the payment option.
-        if (window.ApplePaySession) {
+        if (window.ApplePaySession && appleEnableConfig == 'yes') {
             var canMakePayments = ApplePaySession.canMakePayments("<?php echo $this->apple_mercahnt_id; ?>");
             if ( canMakePayments ) {
                 setTimeout( function() {
@@ -535,12 +557,13 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
                 promise.then(function (success) {
                     var status;
                     if (success) {
-				        status = ApplePaySession.STATUS_SUCCESS;				
                         sendPaymentToTelr(paymentData);
+						session.completePayment();
                     } else {
                         status = ApplePaySession.STATUS_FAILURE;
+						session.completePayment(status);
                     }
-                    session.completePayment(status);
+                    
                 }).catch(function (validationErr) {
                     jQuery(".telr_applePay_error").text('Unable to process Apple Pay payment. Please reload the page and try again. Error Code: E002');
                     setTimeout(function(){
@@ -773,80 +796,26 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
             exit();
         }
     }
+	
+	public function getTelrSupportedNetworks(){
+		
+		$data =array(
+			'ivp_store' => wc_gateway_telr()->settings->__get('store_id'),			
+			'ivp_currency' => get_woocommerce_currency(),
+			'ivp_test' => 0
+		);
+		
+		$ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://secure.telr.com/gateway/api_store_terminals.json');		
+        curl_setopt($ch, CURLOPT_POST, count($data));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
+        $results = curl_exec($ch);
+        $results = preg_replace('/,\s*([\]}])/m', '$1', $results);
+        $results = json_decode($results, true);
+        return  $results['StoreTerminalsResponse']['CardList'];
 
-    public function process_refund($order_id,$amount = null, $reason = ''){
-
-        $order = wc_get_order($order_id);
-        // Check if the order exists
-        if (!$order) {
-            return false;
-        }
-
-        if($this->remote_store_secret == null || $this->remote_store_secret == ''){
-            $order->add_order_note('Please check that the Remote API Authentication Key is not blank or incorrect.');
-            return false;
-        }
-
-	    $url = "https://secure.telr.com/gateway/remote.xml";
-
-	    $store_id        = $this->store_id;
-        $store_secret    = $this->remote_store_secret;
-        $testmode        = $this->testmode == 'yes' ? 1 : 0;
-        $refund_currency = $order->get_currency();
-        $order_ref = $order->get_meta('_telr_auth_tranref',true);
-        $order->add_order_note($order_ref);
-        $order->add_meta_data('is_plugin_refund','1');
-        $order->save();
-
-        $xmlData = "<?xml version='1.0' encoding='UTF-8'?>
-			<remote>
-				<store>$store_id</store>
-				<key>$store_secret</key>
-				<tran>
-					<type>refund</type>
-					<class>ecom</class>
-					<cartid>$order_id</cartid>
-					<description>$reason</description>
-					<test>$testmode</test>
-					<currency>$refund_currency</currency>
-					<amount>$amount</amount>
-					<ref>$order_ref</ref>
-					</tran>
-			</remote>";
-	    $ch = curl_init();
-	    curl_setopt($ch, CURLOPT_URL, $url);
-	    curl_setopt($ch, CURLOPT_POST, true);
-	    curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
-	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-		    'Content-Type: application/xml',
-		    'Content-Length: ' . strlen($xmlData)
-	    ));
-
-	    $results = curl_exec($ch);
-	    $err = curl_error($ch);
-	    curl_close($ch);
-
-	    if (!$err && $results !== false) {
-		    $xml = simplexml_load_string($results);
-		    $json = json_encode($xml);
-		    $responseArray = json_decode($json, true);
-
-		    if ($responseArray !== null) {
-			    if($responseArray['auth']['status'] == 'A'){
-				    $order->add_order_note('Refunded ' . $amount . ' for reason: ' . $reason);
-				    return true;
-			    }else{
-				    $order->add_order_note($responseArray['auth']['message']);
-			    }
-		    }
-	    }
-
-        $order->add_order_note('Refund failed');
-        $order->delete_meta_data('is_plugin_refund',true);
-        $order->save();
-
-	    return false;
-    }
+	}
 	 
 }
