@@ -94,8 +94,8 @@ class WC_Gateway_Telr_Admin_Handler
 				$order->add_order_note('Please check that the Remote API Authentication Key is not blank or incorrect.');
 				return false;
 			}
-            $order->add_meta_data('is_plugin_captured','1');
-            $order->save();
+			$order->add_meta_data('is_plugin_captured','1');
+			$order->save();
 		
 			if($order->get_meta('_telr_transaction_capture',true)){
 				$order->delete_meta_data('_telr_transaction_capture',true);
@@ -176,7 +176,7 @@ class WC_Gateway_Telr_Admin_Handler
 			}
 			
 			$order->add_meta_data('is_plugin_release','1');
-            $order->save();
+			$order->save();
 			
 			//if($order->get_meta('_telr_transaction_release',true)){
 			//	$order->delete_meta_data('_telr_transaction_release',true);
@@ -234,7 +234,7 @@ class WC_Gateway_Telr_Admin_Handler
 	
 	public function trigger_refund($order_id,$amount,$reason,$tranRef = null){
 		
-		$order = wc_get_order($order_id);
+        $order = wc_get_order($order_id);
 
         // Check if the order exists
         if (!$order) {
