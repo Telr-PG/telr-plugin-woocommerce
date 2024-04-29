@@ -427,10 +427,10 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         if (in_array('APPLEPAY AMEX',$telrSupportedNetworks)) {
             array_push( $supported_networks, 'amex' );
         }
-		if (in_array('APPLEPAY DISCOVER',$telrSupportedNetworks)) {
+        if (in_array('APPLEPAY DISCOVER',$telrSupportedNetworks)) {
             array_push( $supported_networks, 'discover' );
         }
-		if (in_array('APPLEPAY JCB',$telrSupportedNetworks)) {
+        if (in_array('APPLEPAY JCB',$telrSupportedNetworks)) {
             array_push( $supported_networks, 'jcb' );
         }
 
@@ -439,232 +439,232 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         <!-- Input needed to sent the card token -->
         <input type="hidden" id="telr-apple-card-token" name="telr-apple-card-token" value="" />
         <input type="hidden" id="subscriptionProductCount" value="<?php echo $subscriptionProductCount; ?>" />
-		<input type="hidden" id="appleEnableConfig" value="<?php echo $this->enable_apple; ?>" />
-	<p class="telr_applePay_error"></p>
-	<script type="text/javascript">
-        var paymentData = {};
-        var applePayOptionSelector = 'li.payment_method_wc_telr_apple_pay';
-        var applePayButtonId = 'telr_applePay';
-        var appleEnableConfig = document.getElementById('appleEnableConfig').value;		
-        // Initially hide the Apple Pay as a payment option.
-        hideAppleApplePayOption();
-        // If Apple Pay is available as a payment option, and enabled on the checkout page, un-hide the payment option.
-        if (window.ApplePaySession && appleEnableConfig == 'yes') {
-            var canMakePayments = ApplePaySession.canMakePayments("<?php echo $this->apple_mercahnt_id; ?>");
-            if ( canMakePayments ) {
-                setTimeout( function() {
-                    showAppleApplePayOption();
-                }, 500 );
-			}
-		}
-        // Display the button and remove the default place order.
-        checkoutInitialiseApplePay = function () {
-            jQuery('.place-order').append('<div id="' + applePayButtonId + '" class="apple-pay-button  ' + "<?php echo $this->apple_type; ?>" + " " + "<?php echo $this->apple_theme; ?>"  + '" style="float:right"></div>');
-            jQuery('#telr_applePay').hide();
-        };
-        // Listen for when the Apple Pay button is pressed.
-        jQuery( document ).off( 'click', '#' + applePayButtonId );
-        jQuery( document ).on( 'click', '#' + applePayButtonId, function () {
-            var checkoutFields = '<?php echo $checkout_fields; ?>';
-            var result = isValidFormField(checkoutFields);
-            if(result){
-                var applePaySession = new ApplePaySession(3, getApplePayRequestPayload());
-                handleApplePayEvents(applePaySession);
-                applePaySession.begin();
-            }
-        });
-		/**
-		 * Get the configuration needed to initialise the Apple Pay session.
-		 *
-		 * @param {function} callback
-		 */
-		function getApplePayRequestPayload() {
-			var networksSupported = <?php echo json_encode( $supported_networks ); ?>;
-			var merchantCapabilities = <?php echo json_encode( $merchant_capabilities ); ?>;
-			return {
-				currencyCode: "<?php echo get_woocommerce_currency(); ?>",
-				countryCode: "<?php echo $country_code; ?>",
-				merchantCapabilities: merchantCapabilities,
-				supportedNetworks: networksSupported,
-				<?php if($subscriptionProduct == true){ ?>
-				recurringPaymentRequest : {
-					paymentDescription :"<?php echo $cart_desc; ?>",
-					regularBilling : {
-						label:'',
-						amount:<?php echo $amount; ?>,
-						recurringPaymentStartDate: new Date('<?php echo date('Y-m-d'); ?>'),
-						recurringPaymentIntervalUnit:"<?php echo $recurrIntUnit; ?>",
-						recurringPaymentIntervalCount:<?php echo $recurrInterval; ?>,
-						paymentTiming:'recurring'
-					},
-					managementURL:"<?php echo get_site_url(); ?>",
-				},
-				<?php } ?>
-				total: {
-					label: window.location.host,
-					amount: "<?php echo $woocommerce->cart->total; ?>",
-					type: 'final'
-				}
-			}
-		}
-        /**
-        * Handle Apple Pay events.
-        */
-        function handleApplePayEvents(session) {
-            /**
-            * An event handler that is called when the payment sheet is displayed.
-            *
-            * @param {object} event - The event contains the validationURL.
-            */
-            session.onvalidatemerchant = function (event) {
-                performAppleUrlValidation(event.validationURL, function (merchantSession) {
-                    session.completeMerchantValidation(merchantSession);
-                });
+        <input type="hidden" id="appleEnableConfig" value="<?php echo $this->enable_apple; ?>" />
+        <p class="telr_applePay_error"></p>
+        <script type="text/javascript">
+            var paymentData = {};
+            var applePayOptionSelector = 'li.payment_method_wc_telr_apple_pay';
+            var applePayButtonId = 'telr_applePay';
+            var appleEnableConfig = document.getElementById('appleEnableConfig').value;		
+            // Initially hide the Apple Pay as a payment option.
+            hideAppleApplePayOption();
+            // If Apple Pay is available as a payment option, and enabled on the checkout page, un-hide the payment option.
+            if (window.ApplePaySession && appleEnableConfig == 'yes') {
+                var canMakePayments = ApplePaySession.canMakePayments("<?php echo $this->apple_mercahnt_id; ?>");
+                if ( canMakePayments ) {
+                    setTimeout( function() {
+                        showAppleApplePayOption();
+                    }, 500 );
+			    }
+		    }
+            // Display the button and remove the default place order.
+            checkoutInitialiseApplePay = function () {
+                jQuery('.place-order').append('<div id="' + applePayButtonId + '" class="apple-pay-button  ' + "<?php echo $this->apple_type; ?>" + " " + "<?php echo $this->apple_theme; ?>"  + '" style="float:right"></div>');
+                jQuery('#telr_applePay').hide();
             };
+            // Listen for when the Apple Pay button is pressed.
+            jQuery( document ).off( 'click', '#' + applePayButtonId );
+            jQuery( document ).on( 'click', '#' + applePayButtonId, function () {
+                var checkoutFields = '<?php echo $checkout_fields; ?>';
+                var result = isValidFormField(checkoutFields);
+                if(result){
+                    var applePaySession = new ApplePaySession(3, getApplePayRequestPayload());
+                    handleApplePayEvents(applePaySession);
+                    applePaySession.begin();
+                }
+            });
+		    /**
+		     * Get the configuration needed to initialise the Apple Pay session.
+		     *
+		     * @param {function} callback
+		     */
+		    function getApplePayRequestPayload() {
+			    var networksSupported = <?php echo json_encode( $supported_networks ); ?>;
+			    var merchantCapabilities = <?php echo json_encode( $merchant_capabilities ); ?>;
+			    return {
+				    currencyCode: "<?php echo get_woocommerce_currency(); ?>",
+				    countryCode: "<?php echo $country_code; ?>",
+				    merchantCapabilities: merchantCapabilities,
+				    supportedNetworks: networksSupported,
+				    <?php if($subscriptionProduct == true){ ?>
+				    recurringPaymentRequest : {
+					    paymentDescription :"<?php echo $cart_desc; ?>",
+					    regularBilling : {
+						    label:'',
+						    amount:<?php echo $amount; ?>,
+						    recurringPaymentStartDate: new Date('<?php echo date('Y-m-d'); ?>'),
+						    recurringPaymentIntervalUnit:"<?php echo $recurrIntUnit; ?>",
+						    recurringPaymentIntervalCount:<?php echo $recurrInterval; ?>,
+						    paymentTiming:'recurring'
+					    },
+					    managementURL:"<?php echo get_site_url(); ?>",
+				    },
+				    <?php } ?>
+				    total: {
+					    label: window.location.host,
+					    amount: "<?php echo $woocommerce->cart->total; ?>",
+					    type: 'final'
+				    }
+			    }
+		    }
             /**
-            * An event handler that is called when a new payment method is selected.
-            *
-            * @param {object} event - The event contains the payment method selected.
+            * Handle Apple Pay events.
             */
-            session.onpaymentmethodselected = function (event) {
-                // base on the card selected the total can be change, if for example you.
-                // plan to charge a fee for credit cards for example.
-                var newTotal = {
-                    type: 'final',
-                    label: window.location.host,
-                    amount: "<?php echo $woocommerce->cart->total; ?>",
+            function handleApplePayEvents(session) {
+               /**
+               * An event handler that is called when the payment sheet is displayed.
+               *
+               * @param {object} event - The event contains the validationURL.
+               */
+                session.onvalidatemerchant = function (event) {
+                    performAppleUrlValidation(event.validationURL, function (merchantSession) {
+                        session.completeMerchantValidation(merchantSession);
+                    });
                 };
-                var newLineItems = [
-                    {
+                /**
+                * An event handler that is called when a new payment method is selected.
+                *
+                * @param {object} event - The event contains the payment method selected.
+                */
+                session.onpaymentmethodselected = function (event) {
+                    // base on the card selected the total can be change, if for example you.
+                    // plan to charge a fee for credit cards for example.
+                    var newTotal = {
                         type: 'final',
-                        label: 'Subtotal',
-                        amount: "<?php echo $woocommerce->cart->subtotal; ?>"
-                    },
-                    {
-                        type: 'final',
-                        label: 'Shipping - ' + "<?php echo $chosen_shipping; ?>",
-                        amount: "<?php echo $shipping_amount; ?>"
-                    }
-                ];
-                session.completePaymentMethodSelection(newTotal, newLineItems);
-            };
-            /**
-            * An event handler that is called when the user has authorized the Apple Pay payment
-            *  with Touch ID, Face ID, or passcode.
-		    */		
-		    session.onpaymentauthorized = function (event) {			
-                var promise = sendPaymentToken(event.payment.token);
-                promise.then(function (success) {
-                    var status;
-                    if (success) {
-                        sendPaymentToTelr(paymentData);
-						session.completePayment();
-                    } else {
-                        status = ApplePaySession.STATUS_FAILURE;
-						session.completePayment(status);
-                    }
+                        label: window.location.host,
+                        amount: "<?php echo $woocommerce->cart->total; ?>",
+                    };
+                    var newLineItems = [
+                        {
+                            type: 'final',
+                            label: 'Subtotal',
+                            amount: "<?php echo $woocommerce->cart->subtotal; ?>"
+                        },
+                        {
+                            type: 'final',
+                            label: 'Shipping - ' + "<?php echo $chosen_shipping; ?>",
+                            amount: "<?php echo $shipping_amount; ?>"
+                        }
+                    ];
+                    session.completePaymentMethodSelection(newTotal, newLineItems);
+                };
+                /**
+                * An event handler that is called when the user has authorized the Apple Pay payment
+                *  with Touch ID, Face ID, or passcode.
+		        */		
+		        session.onpaymentauthorized = function (event) {			
+                    var promise = sendPaymentToken(event.payment.token);
+                    promise.then(function (success) {
+                        var status;
+                        if (success) {
+                            sendPaymentToTelr(paymentData);
+						    session.completePayment();
+                        } else {
+                            status = ApplePaySession.STATUS_FAILURE;
+						    session.completePayment(status);
+                        }
                     
-                }).catch(function (validationErr) {
-                    jQuery(".telr_applePay_error").text('Unable to process Apple Pay payment. Please reload the page and try again. Error Code: E002');
-                    setTimeout(function(){
-                        jQuery(".telr_applePay_error").text('');
-                    }, 5000);
-                    session.abort();
-                });
-            }				
-            /**
-            * An event handler that is automatically called when the payment UI is dismissed.
-            */
-            session.oncancel = function (event) {
-            // popup dismissed
-            };
-	    }
+                    }).catch(function (validationErr) {
+                        jQuery(".telr_applePay_error").text('Unable to process Apple Pay payment. Please reload the page and try again. Error Code: E002');
+                        setTimeout(function(){
+                            jQuery(".telr_applePay_error").text('');
+                        }, 5000);
+                        session.abort();
+                    });
+                }				
+                /**
+                * An event handler that is automatically called when the payment UI is dismissed.
+                */
+                session.oncancel = function (event) {
+                // popup dismissed
+                };
+	        }
 
-		function sendPaymentToken(paymentToken)
-		{			
-			return new Promise(function (resolve, reject) {
-				paymentData = paymentToken;					
-				resolve(true);
-			}).catch(function (validationErr) {
-				jQuery(".telr_applePay_error").text('Unable to process Apple Pay payment. Please reload the page and try again. Error Code: E003');
-				setTimeout(function(){
-					jQuery(".telr_applePay_error").text('');
-				}, 5000);
-				session.abort();
-			});
-		}
+		    function sendPaymentToken(paymentToken)
+		    {			
+			    return new Promise(function (resolve, reject) {
+				    paymentData = paymentToken;					
+				    resolve(true);
+			    }).catch(function (validationErr) {
+				    jQuery(".telr_applePay_error").text('Unable to process Apple Pay payment. Please reload the page and try again. Error Code: E003');
+				    setTimeout(function(){
+					    jQuery(".telr_applePay_error").text('');
+				    }, 5000);
+				    session.abort();
+			    });
+		    }
 		
-		function sendPaymentToTelr(data)
-		{
-			var applePayVersion       =  data.paymentData.version;
-			var applePayData          =  data.paymentData.data;
-			var applePaySignature     =  data.paymentData.signature;
-			var applePayTransactionId =  data.paymentData.header.transactionId;
-			var applePayType          =  data.paymentMethod.type;
-			var applePayNetwork       =  data.paymentMethod.network;
-			var applePayDisplayName   =  data.paymentMethod.displayName;
-			var applePayKeyHash       =  data.paymentData.header.publicKeyHash;
-			var applePayKey           =  data.paymentData.header.ephemeralPublicKey;
-			var applePayTransactionIdentifier = data.transactionIdentifier;
+		    function sendPaymentToTelr(data)
+		    {
+			    var applePayVersion       =  data.paymentData.version;
+			    var applePayData          =  data.paymentData.data;
+			    var applePaySignature     =  data.paymentData.signature;
+			    var applePayTransactionId =  data.paymentData.header.transactionId;
+			    var applePayType          =  data.paymentMethod.type;
+			    var applePayNetwork       =  data.paymentMethod.network;
+			    var applePayDisplayName   =  data.paymentMethod.displayName;
+			    var applePayKeyHash       =  data.paymentData.header.publicKeyHash;
+			    var applePayKey           =  data.paymentData.header.ephemeralPublicKey;
+			    var applePayTransactionIdentifier = data.transactionIdentifier;
 
-			jQuery('<input>').attr({type: 'hidden',	id: 'applePayVersion', name: 'applePayVersion',	value: applePayVersion}).appendTo(jQuery('.woocommerce-checkout'));
-			jQuery('<input>').attr({type: 'hidden',	id: 'applePayData', name: 'applePayData',	value: applePayData}).appendTo(jQuery('.woocommerce-checkout'));
-			jQuery('<input>').attr({type: 'hidden',	id: 'applePaySignature', name: 'applePaySignature',	value: applePaySignature}).appendTo(jQuery('.woocommerce-checkout'));
-			jQuery('<input>').attr({type: 'hidden',	id: 'applePayTransactionId', name: 'applePayTransactionId',	value: applePayTransactionId}).appendTo(jQuery('.woocommerce-checkout'));
-			jQuery('<input>').attr({type: 'hidden',	id: 'applePayType', name: 'applePayType',	value: applePayType}).appendTo(jQuery('.woocommerce-checkout'));
-			jQuery('<input>').attr({type: 'hidden',	id: 'applePayNetwork', name: 'applePayNetwork',	value: applePayNetwork}).appendTo(jQuery('.woocommerce-checkout'));
-			jQuery('<input>').attr({type: 'hidden',	id: 'applePayDisplayName', name: 'applePayDisplayName',	value: applePayDisplayName}).appendTo(jQuery('.woocommerce-checkout'));
-			jQuery('<input>').attr({type: 'hidden',	id: 'applePayKeyHash', name: 'applePayKeyHash',	value: applePayKeyHash}).appendTo(jQuery('.woocommerce-checkout'));
-			jQuery('<input>').attr({type: 'hidden',	id: 'applePayKey', name: 'applePayKey',	value: applePayKey}).appendTo(jQuery('.woocommerce-checkout'));
-			jQuery('<input>').attr({type: 'hidden',	id: 'applePayTransactionIdentifier', name: 'applePayTransactionIdentifier',	value: applePayTransactionIdentifier}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayVersion', name: 'applePayVersion',	value: applePayVersion}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayData', name: 'applePayData',	value: applePayData}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applePaySignature', name: 'applePaySignature',	value: applePaySignature}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayTransactionId', name: 'applePayTransactionId',	value: applePayTransactionId}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayType', name: 'applePayType',	value: applePayType}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayNetwork', name: 'applePayNetwork',	value: applePayNetwork}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayDisplayName', name: 'applePayDisplayName',	value: applePayDisplayName}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayKeyHash', name: 'applePayKeyHash',	value: applePayKeyHash}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayKey', name: 'applePayKey',	value: applePayKey}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayTransactionIdentifier', name: 'applePayTransactionIdentifier',	value: applePayTransactionIdentifier}).appendTo(jQuery('.woocommerce-checkout'));
 			
-			jQuery('#place_order').prop("disabled",false);
-			jQuery('#place_order').trigger('click');
-		}
+			    jQuery('#place_order').prop("disabled",false);
+			    jQuery('#place_order').trigger('click');
+		    }
 
-		/**
-		 * Perform the session validation.
-		 *
-		 * @param {string} valURL validation URL from Apple
-		 * @param {function} callback
-		 */
-		function performAppleUrlValidation(valURL, callback) {
-			jQuery.ajax({
-				type: 'POST',
-				url: "<?php echo $session_url; ?>",
-				data: {
-					url: valURL,
-				},
-				success: function (outcome) {
-				    var data = JSON.parse(outcome);
-					callback(data);
-				}
-			});
-		}  
-		/**
-		* Hide the Apple Pay payment option from the checkout page.
-		*/
-		function hideAppleApplePayOption() {
-			jQuery(applePayOptionSelector).hide();
-		}
-		/**
-		* Show the Apple Pay payment option on the checkout page.
-		*/
-		function showAppleApplePayOption() {
-			jQuery( applePayOptionSelector ).show();			
-			if ( jQuery( '.payment_method_wc_telr_apple_pay' ).is( ':visible' ) ) {
-				if ( jQuery( '#payment_method_wc_telr_apple_pay' ).is( ':checked' ) ) { 
-					jQuery( '#place_order' ).hide();
-					jQuery( '#telr_applePay' ).show();
-				} else {
-					jQuery( '#place_order' ).show();
-					jQuery( '#telr_applePay' ).hide();
-				}				
-			} else {
-				jQuery( '#place_order' ).prop( "disabled", false );
-			}			
-			// On payment radio button click.
-			jQuery( "input[name='payment_method']" ).on( 'click', function () {
+		    /**
+		     * Perform the session validation.
+		     *
+		     * @param {string} valURL validation URL from Apple
+		     * @param {function} callback
+		     */
+		    function performAppleUrlValidation(valURL, callback) {
+			    jQuery.ajax({
+				    type: 'POST',
+				    url: "<?php echo $session_url; ?>",
+				    data: {
+					    url: valURL,
+				    },
+				    success: function (outcome) {
+				        var data = JSON.parse(outcome);
+					    callback(data);
+				    }
+			    });
+		    }  
+		    /**
+		    * Hide the Apple Pay payment option from the checkout page.
+		    */
+		    function hideAppleApplePayOption() {
+			    jQuery(applePayOptionSelector).hide();
+		    }
+		    /**
+		    * Show the Apple Pay payment option on the checkout page.
+		    */
+		    function showAppleApplePayOption() {
+			    jQuery( applePayOptionSelector ).show();			
+			    if ( jQuery( '.payment_method_wc_telr_apple_pay' ).is( ':visible' ) ) {
+				    if ( jQuery( '#payment_method_wc_telr_apple_pay' ).is( ':checked' ) ) { 
+					    jQuery( '#place_order' ).hide();
+					    jQuery( '#telr_applePay' ).show();
+				    } else {
+					    jQuery( '#place_order' ).show();
+					    jQuery( '#telr_applePay' ).hide();
+				    }				
+			    } else {
+				    jQuery( '#place_order' ).prop( "disabled", false );
+			    }			
+			    // On payment radio button click.
+			    jQuery( "input[name='payment_method']" ).on( 'click', function () {
 					if ( this.value == 'wc_telr_apple_pay' ) {
 							setTimeout(function(){
 								jQuery( '#place_order' ).hide();
@@ -674,95 +674,95 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 							jQuery( '#place_order' ).show();
 							jQuery( '#telr_applePay' ).hide();
 					}
-			} );
-		}
-		// Initialise apple pay when page is ready
-		jQuery( document ).ready(function() {
-			checkoutInitialiseApplePay();
-		});
-		// Validate checkout form before submitting order
-		function isValidFormField(fieldList) {
-			var result = {error: false, messages: []};
-			var fields = JSON.parse(fieldList);
-			if(jQuery('#subscriptionProductCount').val() > 1){
-				result.error = true;
-				result.messages.push({target: false, message : 'Only 1 Repeat Billing product is allowed per transaction.'});
-			}
-			if(jQuery('#terms').length === 1 && jQuery('#terms:checked').length === 0){
-				result.error = true;
-				result.messages.push({target: 'terms', message : 'You must accept our Terms & Conditions.'});
-			}
-			if (fields) {
-				jQuery.each(fields, function(group, groupValue) {
-					if (group === 'shipping' && jQuery('#ship-to-different-address-checkbox:checked').length === 0) {
-						return true;
-					}
-					jQuery.each(groupValue, function(name, value ) {
-						if (!value.hasOwnProperty('required')) {
-							return true;
-						}
-						if (name === 'account_password' && jQuery('#createaccount:checked').length === 0) {
-							return true;
-						}
-						var inputValue = jQuery('#' + name).length > 0 && jQuery('#' + name).val().length > 0 ? jQuery('#' + name).val() : '';
-						if (value.required && jQuery('#' + name).length > 0 && jQuery('#' + name).val().length === 0) {
-							result.error = true;
-							result.messages.push({target: name, message : value.label + ' is a required field.'});
-						}
-						if (value.hasOwnProperty('type')) {
-							switch (value.type) {
-								case 'email':
-									var reg     = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-									var correct = reg.test(inputValue);
+			    });
+		    }
+		    // Initialise apple pay when page is ready
+		    jQuery( document ).ready(function() {
+			    checkoutInitialiseApplePay();
+		    });
+		    // Validate checkout form before submitting order
+		    function isValidFormField(fieldList) {
+			    var result = {error: false, messages: []};
+			    var fields = JSON.parse(fieldList);
+			    if(jQuery('#subscriptionProductCount').val() > 1){
+				    result.error = true;
+				    result.messages.push({target: false, message : 'Only 1 Repeat Billing product is allowed per transaction.'});
+			    }
+			    if(jQuery('#terms').length === 1 && jQuery('#terms:checked').length === 0){
+				    result.error = true;
+				    result.messages.push({target: 'terms', message : 'You must accept our Terms & Conditions.'});
+			    }
+			    if (fields) {
+				    jQuery.each(fields, function(group, groupValue) {
+					    if (group === 'shipping' && jQuery('#ship-to-different-address-checkbox:checked').length === 0) {
+						    return true;
+					    }
+					    jQuery.each(groupValue, function(name, value ) {
+						    if (!value.hasOwnProperty('required')) {
+							    return true;
+						    }
+						    if (name === 'account_password' && jQuery('#createaccount:checked').length === 0) {
+							    return true;
+						    }
+						    var inputValue = jQuery('#' + name).length > 0 && jQuery('#' + name).val().length > 0 ? jQuery('#' + name).val() : '';
+						    if (value.required && jQuery('#' + name).length > 0 && jQuery('#' + name).val().length === 0) {
+							    result.error = true;
+							    result.messages.push({target: name, message : value.label + ' is a required field.'});
+						    }
+						    if (value.hasOwnProperty('type')) {
+							    switch (value.type) {
+								    case 'email':
+									    var reg     = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+									    var correct = reg.test(inputValue);
 
-									if (!correct) {
-										result.error = true;
-										result.messages.push({target: name, message : value.label + ' is not correct email.'});
-									}
+									    if (!correct) {
+										    result.error = true;
+										    result.messages.push({target: name, message : value.label + ' is not correct email.'});
+									    }
 
-									break;
-								case 'tel':
-									var tel      = inputValue;
-									var filtered = tel.replace(/[\s\#0-9_\-\+\(\)]/g, '').trim();
+									    break;
+								    case 'tel':
+									    var tel      = inputValue;
+									    var filtered = tel.replace(/[\s\#0-9_\-\+\(\)]/g, '').trim();
 
-									if (filtered.length > 0) {
-										result.error = true;
-										result.messages.push({target: name, message : value.label + ' is not correct phone number.'});
-									}
+									    if (filtered.length > 0) {
+										    result.error = true;
+										    result.messages.push({target: name, message : value.label + ' is not correct phone number.'});
+									    }
 
-									break;
-							}
-						}
-					});
-				});
-			} else {
-				result.error = true;
-				result.messages.push({target: false, message : 'Empty form data.'});
-			}
-			if (!result.error) {
-				return true;
-			}
-			jQuery('.woocommerce-error, .woocommerce-message').remove();
-			jQuery.each(result.messages, function(index, value) {
-				jQuery('form.checkout').prepend('<div class="woocommerce-error">' + value.message + '</div>');
-			});
-			jQuery('html, body').animate({
-				scrollTop: (jQuery('form.checkout').offset().top - 100 )
-			}, 1000 );
-			jQuery(document.body).trigger('checkout_error');
-			return false;
-		}
-    </script>    
-    <?php
+									    break;
+							    }
+						    }
+					    });
+				    });
+			    } else {
+				    result.error = true;
+				    result.messages.push({target: false, message : 'Empty form data.'});
+			    }
+			    if (!result.error) {
+				    return true;
+			    }
+			    jQuery('.woocommerce-error, .woocommerce-message').remove();
+			    jQuery.each(result.messages, function(index, value) {
+				    jQuery('form.checkout').prepend('<div class="woocommerce-error">' + value.message + '</div>');
+			    });
+			    jQuery('html, body').animate({
+				    scrollTop: (jQuery('form.checkout').offset().top - 100 )
+			    }, 1000 );
+			    jQuery(document.body).trigger('checkout_error');
+			    return false;
+		    }
+        </script>    
+        <?php
 
     }
 
 
-        /**
+    /**
      * Apple pay session.
      *
      * @return void
-     */
+    */
     public function applepay_sesion() {
 
         $url          = $_POST['url'];
@@ -799,13 +799,13 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 	
 	public function getTelrSupportedNetworks(){
 		
-		$data =array(
-			'ivp_store' => wc_gateway_telr()->settings->__get('store_id'),			
-			'ivp_currency' => get_woocommerce_currency(),
-			'ivp_test' => 0
-		);
+        $data =array(
+            'ivp_store' => wc_gateway_telr()->settings->__get('store_id'),			
+            'ivp_currency' => get_woocommerce_currency(),
+            'ivp_test' => 0
+        );
 		
-		$ch = curl_init();
+        $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, 'https://secure.telr.com/gateway/api_store_terminals.json');		
         curl_setopt($ch, CURLOPT_POST, count($data));
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);

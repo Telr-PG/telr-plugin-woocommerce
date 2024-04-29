@@ -76,12 +76,12 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
         add_action( 'woocommerce_api_telr-requery', array( $this, 'payment_requery' ) );
         add_action( 'woocommerce_api_ivp-callback', array( $this, 'ivp_check_function' ) );
 		
-		add_action('woocommerce_order_item_add_action_buttons', array($this,'add_capture_btn_to_order_edit_page'), 10, 1);
-		add_action('woocommerce_admin_order_data_after_order_details', array($this,'action_order_details_after_order_table'), 20, 3);
-		add_action('admin_menu', array($this,'captured_transcation_page'));
-		add_action('wp_ajax_capture_payment', array($this,'capture_payment'));
-		add_action('wp_ajax_release_payment', array($this,'release_payment'));
-		add_action('wp_ajax_captured_refund', array($this,'captured_refund'));
+        add_action('woocommerce_order_item_add_action_buttons', array($this,'add_capture_btn_to_order_edit_page'), 10, 1);
+        add_action('woocommerce_admin_order_data_after_order_details', array($this,'action_order_details_after_order_table'), 20, 3);
+        add_action('admin_menu', array($this,'captured_transcation_page'));
+        add_action('wp_ajax_capture_payment', array($this,'capture_payment'));
+        add_action('wp_ajax_release_payment', array($this,'release_payment'));
+        add_action('wp_ajax_captured_refund', array($this,'captured_refund'));
 
         add_action( 'wp_enqueue_scripts', array( $this, 'wpcheckout_dequeue_and_then_enqueue'), 11 );
 
@@ -209,13 +209,13 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
             
             if ($order_status == 'processing') {
                 if($order->get_meta('_telr_tran_type',true) == 'auth'){					
-				}else{
-					$default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
-					if ($default_order_status != 'none' ) {
-						$order->update_status($default_order_status);
-					}
-					$order->payment_complete();
-				}                				
+                }else{
+                    $default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
+                    if ($default_order_status != 'none' ) {
+                        $order->update_status($default_order_status);
+                    }
+                    $order->payment_complete();
+                }                				
                 WC()->cart->empty_cart();
             } else if($order_status == 'active'){
                 $subscription_obj = new WC_Subscription($order_id);
@@ -323,8 +323,8 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
     //ToDo: Check this function if its working correctly.
     public function ivp_check_function()
     {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'telr_capture_transcations';
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'telr_capture_transcations';
 		
         if (isset($_GET['cart_id']) && !empty($_GET['cart_id'])) {
             // proceed to update order payment details:
@@ -342,100 +342,99 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                     $tranRef = $_POST['tran_ref'];
                     $tranAmount = $_POST['tran_amount'];
                     $release_amt = 0;
-					$captured_amt = 0;
+                    $captured_amt = 0;
                     if ($tranStatus == 'A') {
                         switch ($tranType) {
                             case '1':
                             case '4':
                             case '7':
                                 if($order->get_meta('is_plugin_captured',true)){
-									if($order->get_meta('is_plugin_captured',true) == '1'){											
-										$order->delete_meta_data('is_plugin_captured');
-									}
-								}else{							
-									if($order->get_meta('_transaction_captured_amt',true)){
-										$captured_amt = $order->get_meta('_transaction_captured_amt') + $tranAmount;
-										$order->update_meta_data('_transaction_captured_amt',$captured_amt);
-										$order->save();
-									}else{
-										$order->add_meta_data('_transaction_captured_amt',$tranAmount);
-										$order->save();
-									}
+                                    if($order->get_meta('is_plugin_captured',true) == '1'){											
+                                        $order->delete_meta_data('is_plugin_captured');
+                                    }
+                                }else{							
+                                    if($order->get_meta('_transaction_captured_amt',true)){
+                                        $captured_amt = $order->get_meta('_transaction_captured_amt') + $tranAmount;
+                                        $order->update_meta_data('_transaction_captured_amt',$captured_amt);
+                                        $order->save();
+                                    }else{
+                                        $order->add_meta_data('_transaction_captured_amt',$tranAmount);
+                                        $order->save();
+                                    }
 									
-									$wpdb->insert( 
-									$table_name, 
-										array( 
-											'order_id' => $order_id, 
-											'capture_amt' => $tranAmount, 
-											'capture_date' => current_time('mysql'),
-											'tran_ref' => $tranRef, 
-											'fully_refunded' => 0, 									
-										) 
-									);
-								}
-								if($order->get_meta('_transaction_release_amt',true)){
-									$release_amt = $order->get_meta('_transaction_release_amt');								    
-								}
-								$total_process_amt = $order->get_meta('_transaction_captured_amt') + $release_amt;
-								if($total_process_amt == $order->get_total()){
-									$orderType = OrderUtil::get_order_type( $order_id );
+                                    $wpdb->insert( 
+                                        $table_name, 
+                                        array( 
+                                            'order_id' => $order_id, 
+                                            'capture_amt' => $tranAmount, 
+                                            'capture_date' => current_time('mysql'),
+                                            'tran_ref' => $tranRef, 
+                                            'fully_refunded' => 0, 									
+                                        ) 
+                                    );
+                                }
+                                if($order->get_meta('_transaction_release_amt',true)){
+	                                $release_amt = $order->get_meta('_transaction_release_amt');								    
+                                }
+                                $total_process_amt = $order->get_meta('_transaction_captured_amt') + $release_amt;
+                                if($total_process_amt == $order->get_total()){
+                                    $orderType = OrderUtil::get_order_type( $order_id );
 									
-									if($orderType == 'shop_subscription'){
-										$order->delete_meta_data('_telr_auth_tranref');
-										$order->add_meta_data('_telr_auth_tranref',$tranRef);
-										$subscription_obj = new WC_Subscription($order_id);
-										$subscription_obj->update_status('active');
-									}else{
-										$order->update_meta_data('_telr_auth_tranref',$tranRef);
-										if ( class_exists( 'WC_Subscriptions_Order' ) ) {
-											$subscriptions_ids = wcs_get_subscriptions_for_order($order_id);
-											foreach( $subscriptions_ids as $subscription_id => $subscription_obj ){
-												$subscription_obj->add_meta_data('_telr_auth_tranref',$tranRef);
-												$subscription_obj->save();
-											}
-											
-										}
-										$order->payment_complete();
-										$order->add_meta_data('_telr_transaction_completed',true);
-										$default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
-										if ($default_order_status != 'none') {
-											$order->update_status($default_order_status);
-										}
-									}
-									$order->save();
-								}
+                                    if($orderType == 'shop_subscription'){
+                                        $order->delete_meta_data('_telr_auth_tranref');
+                                        $order->add_meta_data('_telr_auth_tranref',$tranRef);
+                                        $subscription_obj = new WC_Subscription($order_id);
+                                        $subscription_obj->update_status('active');
+                                    }else{
+                                        $order->update_meta_data('_telr_auth_tranref',$tranRef);
+                                        if ( class_exists( 'WC_Subscriptions_Order' ) ) {
+                                            $subscriptions_ids = wcs_get_subscriptions_for_order($order_id);
+                                            foreach( $subscriptions_ids as $subscription_id => $subscription_obj ){
+                                                $subscription_obj->add_meta_data('_telr_auth_tranref',$tranRef);
+                                                $subscription_obj->save();
+                                            }											
+                                        }
+                                        $order->payment_complete();
+                                        $order->add_meta_data('_telr_transaction_completed',true);
+                                        $default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
+                                        if ($default_order_status != 'none') {
+                                            $order->update_status($default_order_status);
+                                        }
+                                    }
+                                    $order->save();
+                                }
                                 break;
 
                             case '2':
                             case '6':
                             case '8':
                                 if($order->get_meta('is_plugin_release',true)){
-									if($order->get_meta('is_plugin_release',true) == '1'){											
-										$order->delete_meta_data('is_plugin_release');
-									}
-								}else{							
-									if($order->get_meta('_transaction_release_amt',true)){
-										$release_amt = $order->get_meta('_transaction_release_amt') + $tranAmount;
-										$order->update_meta_data('_transaction_release_amt',$release_amt);
-										$order->save();
-									}else{
-										$order->add_meta_data('_transaction_release_amt',$tranAmount);
-										$order->save();
-									}
-								}
-								if($order->get_meta('_transaction_captured_amt',true)){
-									$captured_amt = $order->get_meta('_transaction_captured_amt');
-								}
+                                    if($order->get_meta('is_plugin_release',true) == '1'){											
+                                        $order->delete_meta_data('is_plugin_release');
+                                    }
+                                }else{							
+                                    if($order->get_meta('_transaction_release_amt',true)){
+                                        $release_amt = $order->get_meta('_transaction_release_amt') + $tranAmount;
+                                        $order->update_meta_data('_transaction_release_amt',$release_amt);
+                                        $order->save();
+                                    }else{
+                                        $order->add_meta_data('_transaction_release_amt',$tranAmount);
+                                        $order->save();
+                                    }
+                                }
+                                if($order->get_meta('_transaction_captured_amt',true)){
+                                    $captured_amt = $order->get_meta('_transaction_captured_amt');
+                                }
 								
-								$total_process_amt = $order->get_meta('_transaction_release_amt') + $captured_amt;
+                                $total_process_amt = $order->get_meta('_transaction_release_amt') + $captured_amt;
 								
-								if($total_process_amt == $order->get_total()){
-									$newOrderStatus = 'cancelled';
-									$order->update_status($newOrderStatus);
-									$order->add_meta_data('_telr_transaction_completed',true);
-									$order->update_meta_data('_telr_auth_tranref',$tranRef);
-									$order->save();
-								}
+                                if($total_process_amt == $order->get_total()){
+                                    $newOrderStatus = 'cancelled';
+                                    $order->update_status($newOrderStatus);
+                                    $order->add_meta_data('_telr_transaction_completed',true);
+                                    $order->update_meta_data('_telr_auth_tranref',$tranRef);
+                                    $order->save();
+                                }
                                 break;
 
                             case '3':
@@ -449,26 +448,26 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                                         }								
                                     }else{
                                         $refund = wc_create_refund(array('amount' => $tranAmount, 'reason' => 'Order Refunded From Telr Panel ', 'order_id' => $order_id, 'line_items' => array()));
-										$records = $wpdb->get_results( "SELECT * FROM {$table_name} where order_id = {$order_id} order by id desc", OBJECT );
-										if(count($records) > 0){
-											$results = $wpdb->get_results( "SELECT * FROM {$table_name} where tran_ref = {$tranRef} order by id desc", OBJECT );
-											if(count($results) > 0){
-												$refunded_amt = $results[0]['refunded_amt'] == '' ? 0 : $results[0]['refunded_amt'];
-												$amount = $refunded_amt + $tranAmount;
-												$wpdb->update($table_name,array('refunded_amt'=>$amount),array('tran_ref'=>$tranRef));
+                                        $records = $wpdb->get_results( "SELECT * FROM {$table_name} where order_id = {$order_id} order by id desc", OBJECT );
+                                        if(count($records) > 0){
+                                            $results = $wpdb->get_results( "SELECT * FROM {$table_name} where tran_ref = {$tranRef} order by id desc", OBJECT );
+                                            if(count($results) > 0){
+                                                $refunded_amt = $results[0]['refunded_amt'] == '' ? 0 : $results[0]['refunded_amt'];
+                                                $amount = $refunded_amt + $tranAmount;
+                                                $wpdb->update($table_name,array('refunded_amt'=>$amount),array('tran_ref'=>$tranRef));
 												
-												if($results[0]['capture_amt'] == $amount){
-													$wpdb->update($table_name,array('fully_refunded'=>1),array('tran_ref'=>$tranRef));
-												}
+                                                if($results[0]['capture_amt'] == $amount){
+                                                    $wpdb->update($table_name,array('fully_refunded'=>1),array('tran_ref'=>$tranRef));
+                                                }
 												
-												$fully_refunded = $wpdb->get_results( "SELECT * FROM {$table_name} where order_id = {$order_id} and fully_refunded = 0  order by id desc", OBJECT );
+                                                $fully_refunded = $wpdb->get_results( "SELECT * FROM {$table_name} where order_id = {$order_id} and fully_refunded = 0  order by id desc", OBJECT );
 				
-												if(count($fully_refunded) == 0){
-													$order = new WC_Order($order_id);
-													$order->update_status('refunded');  
-												}
-											}
-										}
+                                                if(count($fully_refunded) == 0){
+                                                    $order = new WC_Order($order_id);
+                                                    $order->update_status('refunded');  
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 $order->save();
@@ -528,7 +527,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
         }
         
         wc_gateway_telr()->settings->__set('enabled','no');
-		wc_gateway_telr()->settings->__set('enable_apple','no');														
+        wc_gateway_telr()->settings->__set('enable_apple','no');														
         wc_gateway_telr()->settings->save();
         ?>
         <div class="inline error"><p><strong><?php _e('Gateway disabled', 'wctelr'); ?></strong>: <?php _e('Telr Payments does not support your store currency.', 'wctelr'); ?></p></div>
@@ -539,7 +538,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
     {
         $plugin_data = get_plugin_data(ABSPATH. 'wp-content/plugins/wc-telr/wc-telr.php');
         $plugin_version = $plugin_data['Version'];
-		wc_gateway_telr()->admin->generate_links();										   
+        wc_gateway_telr()->admin->generate_links();										   
  
     ?>
         <h3><?php _e('Telr ', 'wctelr'); ?><span><?php echo 'Version '.$plugin_version; ?></span> </h3>

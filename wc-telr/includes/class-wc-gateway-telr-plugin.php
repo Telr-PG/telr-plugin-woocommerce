@@ -31,7 +31,7 @@ class WC_Gateway_Telr_Plugin
         add_action('plugins_loaded', array($this, 'bootstrap'));
         add_filter('plugin_action_links_' . plugin_basename($this->file), array($this, 'plugin_action_links'));
         add_action('init', array($this, 'init_ssl_check'));
-		add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_data_tables'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_data_tables'));
         add_action('wp_enqueue_scripts', array($this, 'callback_for_setting_up_scripts'));
 		
         $telrSettings = (array) get_option('woocommerce_wctelr_settings', array());
@@ -387,22 +387,22 @@ class WC_Gateway_Telr_Plugin
      */
     public function activate()
     {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'telr_capture_transcations';
-		$charset_collate = $wpdb->get_charset_collate();
-		$sql = "CREATE TABLE IF NOT EXISTS $table_name (
-			id int(15) NOT NULL AUTO_INCREMENT,
-			order_id varchar(100) NOT NULL,
-			capture_amt decimal(12,2) NOT NULL,
-			capture_date date NOT NULL,
-			refunded_amt decimal(12,2) NULL,
-			tran_ref varchar(200) NOT NULL,
-			fully_refunded int(1) NOT NULL,
-			PRIMARY KEY  (id)
-		) $charset_collate;";
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'telr_capture_transcations';
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+            id int(15) NOT NULL AUTO_INCREMENT,
+            order_id varchar(100) NOT NULL,
+            capture_amt decimal(12,2) NOT NULL,
+            capture_date date NOT NULL,
+            refunded_amt decimal(12,2) NULL,
+            tran_ref varchar(200) NOT NULL,
+            fully_refunded int(1) NOT NULL,
+            PRIMARY KEY  (id)
+        ) $charset_collate;";
 		
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-		dbDelta( $sql );
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta( $sql );
 		
         if (!isset($this->setings)) {
             require_once($this->includes_path . 'class-wc-gateway-telr-settings.php');

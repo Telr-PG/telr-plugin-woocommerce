@@ -15,9 +15,9 @@ class WC_Gateway_Telr_Admin_Handler
     public function __construct()
     {
         $this->allowed_currencies   = include(dirname(__FILE__) . '/settings/supportd-currencies-telr.php');
-		$this->testmode             = wc_gateway_telr()->settings->__get('testmode');
-		$this->store_id             = wc_gateway_telr()->settings->__get('store_id');
-		$this->remote_store_secret  = wc_gateway_telr()->settings->__get('remote_store_secret');
+        $this->testmode             = wc_gateway_telr()->settings->__get('testmode');
+        $this->store_id             = wc_gateway_telr()->settings->__get('store_id');
+        $this->remote_store_secret  = wc_gateway_telr()->settings->__get('remote_store_secret');
     }
     public function is_valid_for_use()
     {
@@ -49,11 +49,11 @@ class WC_Gateway_Telr_Admin_Handler
 		<div class="cko-admin-settings__links">
 			<ul>
 				<li><a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=wctelr' ) ); ?>"
-						class="<?php echo 'wctelr' === $screen ? 'current' : null; ?>">
-						<?php esc_html_e( 'Core Setting', 'wctelr' ); ?></a> | </li>
+                       class="<?php echo 'wctelr' === $screen ? 'current' : null; ?>">
+                       <?php esc_html_e( 'Core Setting', 'wctelr' ); ?></a> | </li>
 				<li><a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=wc_telr_apple_pay' ) ); ?>"
-						class="<?php echo 'wc_telr_apple_pay' === $screen ? 'current' : null; ?>">
-						<?php esc_html_e( 'Apple Pay', 'wctelr' ); ?></a></li>
+                       class="<?php echo 'wc_telr_apple_pay' === $screen ? 'current' : null; ?>">
+                       <?php esc_html_e( 'Apple Pay', 'wctelr' ); ?></a></li>
 			</ul>
 		</div>
 		<?php
@@ -94,7 +94,7 @@ class WC_Gateway_Telr_Admin_Handler
 				$order->add_order_note('Please check that the Remote API Authentication Key is not blank or incorrect.');
 				return false;
 			}
-			$order->add_meta_data('is_plugin_captured','1');
+            $order->add_meta_data('is_plugin_captured','1');
             $order->save();
 		
 			if($order->get_meta('_telr_transaction_capture',true)){
@@ -267,21 +267,21 @@ class WC_Gateway_Telr_Admin_Handler
         $order->add_order_note('Refund failed');
         $order->delete_meta_data('is_plugin_refund',true);
         $order->save();
-		return false;
+        return false;
 	}	
 	
 	public function remote_xml_api_request($tranType,$orderId,$amount,$reason,$tranRef = null){
 		
-		$order = wc_get_order($orderId);
-		$url   = "https://secure.telr.com/gateway/remote.xml";
+        $order = wc_get_order($orderId);
+        $url   = "https://secure.telr.com/gateway/remote.xml";
 		
-		$storeId        = $this->store_id;
+        $storeId        = $this->store_id;
         $storeSecret    = $this->remote_store_secret;
         $testmode       = $this->testmode == 'yes' ? 1 : 0;
 	    $refundCurrency = $order->get_currency();
 	    $orderRef       = $tranRef != null ? $tranRef : $order->get_meta('_telr_auth_tranref',true);		
 		
-		$xmlData = "<?xml version='1.0' encoding='UTF-8'?>
+        $xmlData = "<?xml version='1.0' encoding='UTF-8'?>
 					<remote>
 						<store>$storeId</store>
 						<key>$storeSecret</key>

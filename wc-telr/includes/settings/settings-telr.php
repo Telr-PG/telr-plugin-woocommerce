@@ -94,16 +94,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 				'desc_tip'      => false,
 				'placeholder'   => '[Remote API Authentication Key]'
 			),
-            'tran_type' => array(
-                'title'           => __('Transaction Type', 'wctelr'),
-                'type'            => 'select',
-                'options'         => array(
-				    'sale'       => __( 'Sale', 'wctelr' ),
-				    'auth'          => __( 'Auth', 'wctelr' ),
+			'tran_type' => array(
+				'title'           => __('Transaction Type', 'wctelr'),
+				'type'            => 'select',
+				'options'         => array(
+					'sale'       => __( 'Sale', 'wctelr' ),
+					'auth'          => __( 'Auth', 'wctelr' ),
 				),
 				'default'         => 'sale',
 				'desc_tip'        => false
-            ),
+			),
 			'payment_mode' => array(
 				'title'           => __('Payment Mode', 'wctelr'),
 				'type'            => 'select',
