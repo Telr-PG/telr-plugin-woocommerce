@@ -176,58 +176,51 @@ class WC_Gateway_Telr_Admin_Handler
 			}
 			
 			$order->add_meta_data('is_plugin_release','1');
-			$order->save();
+			$order->save();			
 			
-			//if($order->get_meta('_telr_transaction_release',true)){
-			//	$order->delete_meta_data('_telr_transaction_release',true);
-			//	$order->save();
-			//}else{
-			//	$order->add_meta_data('_telr_transaction_release',true);
-			//	$order->save();
-				$results  =  $this->remote_xml_api_request('release',$order_id,$amount,'Initiate release payment request');
-				if ($results !== false) {
-					$xml = simplexml_load_string($results);
-					$json = json_encode($xml);
-					$responseArray = json_decode($json,true);
-					
-					if ($responseArray !== null) {					
-						if($responseArray['auth']['status'] == 'A'){
-							if($order->get_meta('_transaction_release_amt',true)){
-								$captured_amt = $order->get_meta('_transaction_release_amt') + $amount;
-								$order->update_meta_data('_transaction_release_amt',$captured_amt);
-								$order->save();
-							}else{
-								$order->add_meta_data('_transaction_release_amt',$amount);
-								$order->save();
-							}
-							if($order->get_meta('_transaction_captured_amt',true)){
-								$captured_amt = $order->get_meta('_transaction_captured_amt');
-							}
-							
-							$total_process_amt = $order->get_meta('_transaction_release_amt') + $captured_amt;
-							
-							if($order->get_meta('_transaction_release_amt') == $order->get_total()){
-								$order->update_meta_data('_telr_auth_tranref',$responseArray['auth']['tranref']);
-								$order->add_meta_data('_telr_transaction_completed',true);
-								$order->update_status('cancelled');
-								$order->save();
-								$order->payment_complete();
-							}elseif($total_process_amt == $order->get_total()){
-								$order->add_meta_data('_telr_transaction_completed',true);
-								$order->update_status('processing');
-								$order->save();
-								$order->payment_complete();
-							}
-							
-							$order->add_order_note('A payment of ' . $amount . ' was successfully released using Telr Payments');							
-							return true;
-						}else{						
-							$order->add_order_note($responseArray['auth']['message']);					
+			$results  =  $this->remote_xml_api_request('release',$order_id,$amount,'Initiate release payment request');
+			if ($results !== false) {
+				$xml = simplexml_load_string($results);
+				$json = json_encode($xml);
+				$responseArray = json_decode($json,true);
+				
+				if ($responseArray !== null) {					
+					if($responseArray['auth']['status'] == 'A'){
+						if($order->get_meta('_transaction_release_amt',true)){
+							$captured_amt = $order->get_meta('_transaction_release_amt') + $amount;
+							$order->update_meta_data('_transaction_release_amt',$captured_amt);
+							$order->save();
+						}else{
+							$order->add_meta_data('_transaction_release_amt',$amount);
+							$order->save();
 						}
+						if($order->get_meta('_transaction_captured_amt',true)){
+							$captured_amt = $order->get_meta('_transaction_captured_amt');
+						}
+						
+						$total_process_amt = $order->get_meta('_transaction_release_amt') + $captured_amt;
+						
+						if($order->get_meta('_transaction_release_amt') == $order->get_total()){
+							$order->update_meta_data('_telr_auth_tranref',$responseArray['auth']['tranref']);
+							$order->add_meta_data('_telr_transaction_completed',true);
+							$order->update_status('cancelled');
+							$order->save();
+							$order->payment_complete();
+						}elseif($total_process_amt == $order->get_total()){
+							$order->add_meta_data('_telr_transaction_completed',true);
+							$order->update_status('processing');
+							$order->save();
+							$order->payment_complete();
+						}
+						
+						$order->add_order_note('A payment of ' . $amount . ' was successfully released using Telr Payments');							
+						return true;
+					}else{						
+						$order->add_order_note($responseArray['auth']['message']);					
 					}
-				}	
-				$order->add_order_note('Released failed');				
-			//}
+				}
+			}	
+			$order->add_order_note('Released failed');	
 		}
 		return false;
 	}
