@@ -9,15 +9,18 @@ if (!defined('ABSPATH')) {
 }
 $includes_path = wc_gateway_telr()->includes_path;
 require_once($includes_path. 'abstracts/abstract-wc-gateway-telr.php');
+require_once($includes_path. 'abstracts/abstract-wc-gateway-telr-apple.php');																			 
 
 class WC_Gateway_Telr_Checkout_Handler
 {
     public function __construct()
     {
         $this->telr_payment_gateway = new WC_Telr_Payment_Gateway();
+        $this->telr_apple_payment_gateway = new WC_Telr_Apple_Payment_Gateway();																		
         $this->payment_mode = wc_gateway_telr()->settings->__get('payment_mode');
         $this->payment_mode_woocomm = wc_gateway_telr()->settings->__get('payment_mode');
         $this->subs_method = wc_gateway_telr()->settings->__get('subscription_method');
+        $this->tran_type = wc_gateway_telr()->settings->__get('tran_type');
     }
     
     /*
@@ -72,8 +75,12 @@ class WC_Gateway_Telr_Checkout_Handler
         }
         
         $order->update_meta_data('_telr_ref',$telr_ref);
-
         $order->update_status('wc-pending');
+		
+        if ($order->get_meta('_telr_tran_type',true)) {
+            $order->delete_meta_data('_telr_tran_type',true);
+        }
+        $order->add_meta_data('_telr_tran_type',$this->tran_type);
         
         if(is_ssl() && ($this->payment_mode_woocomm == 2 || $this->payment_mode_woocomm == '9' || $this->payment_mode_woocomm == '10') && !isset($_POST['woocommerce_change_payment'])) {
             if ($order->get_meta('_telr_url',true)) {
@@ -148,7 +155,7 @@ class WC_Gateway_Telr_Checkout_Handler
     * @access public
     * @return array
     */
-    private function generate_request($order)
+    public function generate_request($order)
     {
         global $woocommerce;
 
@@ -225,6 +232,7 @@ class WC_Gateway_Telr_Checkout_Handler
             'ivp_amount'      => $payAmount,
             'ivp_lang'        => $ivp_lang,
             'ivp_currency'    => get_woocommerce_currency(),
+            'ivp_trantype'    => $this->tran_type,
             'ivp_desc'        => $cart_desc,
             'return_auth'     => $return_url,
             'return_can'      => $cancel_url,
@@ -264,11 +272,11 @@ class WC_Gateway_Telr_Checkout_Handler
             if ( class_exists( 'WC_Subscriptions_Order' ) && $this->subs_method == 'woocomm' && 
                 ($product->get_type() == 'subscription' || $product->get_type() == 'variable-subscription')) {
                 $recurrCount = get_post_meta($productId, '_subscription_length', true);
-                if($product->get_type() == 'variable-subscription'){
-                    $recurrAmount = get_post_meta($productId, '_price', true);
+                if(empty(get_post_meta($productId, '_sale_price', true)) || get_post_meta($productId, '_sale_price', true) <= 0 ){
+                    $recurrAmount = get_post_meta($productId, '_subscription_price', true);
                 }else{
                     $recurrAmount = get_post_meta($productId, '_sale_price', true);
-                }  
+                }
                 $recurrInterval = get_post_meta($productId, '_subscription_period_interval', true);
                 $recurrIntUnit = get_post_meta($productId, '_subscription_period', true);
 					
@@ -304,6 +312,157 @@ class WC_Gateway_Telr_Checkout_Handler
 
         $response = $this->api_request($data);
         return $response;
+	}
+	
+	/*
+    * generate apple pay request for api request
+    *
+    * @parem @param order id (int)
+    * @access public
+    * @return array
+    */
+    public function generate_applepay_request($order,$applePayData)
+    {
+        global $woocommerce;
+
+        $order_id = $order->get_id();
+        $items = $order->get_items();
+
+        $prefix=$productnames="";
+        foreach ( $items as $item ) {
+           $productnames .= $prefix.$item->get_name();
+           $prefix = ', ';
+        }
+ 
+        $productinorder = substr($productnames,0,63);
+
+        $ivp_lang = wc_gateway_telr()->settings->__get('language');
+
+        if ( defined( 'ICL_LANGUAGE_CODE' ) ) {
+            if(ICL_LANGUAGE_CODE == 'en' || ICL_LANGUAGE_CODE == 'ar'){
+                $ivp_lang = ICL_LANGUAGE_CODE;
+            }
+        }
+
+        $cart_id   = $order_id."_".uniqid();
+        if ($order->get_meta('_telr_cartid',true)) {
+            $order->delete_meta_data('_telr_cartid',true);
+        }
+        $order->add_meta_data('_telr_cartid',$cart_id);
+        
+        $cart_desc = trim(wc_gateway_telr()->settings->__get('cart_desc'));
+        if (empty($cart_desc)) {
+            $cart_desc ='Order {order_id}';
+        }
+        $cart_desc  = preg_replace('/{order_id}/i', $order_id, $cart_desc);
+        $cart_desc = str_replace("&amp;", "&", $cart_desc);
+        $cart_desc = preg_replace('/{product_names}/i', $productinorder, $cart_desc);
+        $cart_desc = substr($cart_desc,0,63);             
+        $order->add_meta_data('_telr_cartdesc',$cart_desc);
+        $order->save();        
+        $payAmount = $order->get_total();
+        
+	    $params = array(
+	       'ivp_method'      => 'applepay',
+	       'ivp_store'       => wc_gateway_telr()->settings->__get('store_id'),
+	       'ivp_authkey'     => wc_gateway_telr()->settings->__get('remote_v2_auth_key'),
+	       'ivp_amount'      => $payAmount,
+	       'ivp_test'        => '0',
+	       'ivp_desc'        => $cart_desc,
+	       'ivp_currency'    => get_woocommerce_currency(),
+	       'ivp_cart'        => $cart_id,
+	       'ivp_trantype'    => $this->tran_type,
+	       'ivp_tranclass'   => 'ecom',
+	       'bill_fname'      => $order->get_billing_first_name(),
+           'bill_sname'      => $order->get_billing_last_name(),
+           'bill_addr1'      => $order->get_billing_address_1(),
+           'bill_addr2'      => $order->get_billing_address_2(),
+           'bill_city'       => $order->get_billing_city(),
+           'bill_region'     => $order->get_billing_state(),
+           'bill_zip'        => $order->get_billing_postcode(),
+           'bill_country'    => $order->get_billing_country(),
+           'bill_email'      => $order->get_billing_email(),
+	       'bill_tel'        => $order->get_billing_phone(),
+	       'applepay_enc_version'  => $applePayData['applePayVersion'],
+	       'applepay_enc_paydata'  => urlencode($applePayData['applePayData']),
+	       'applepay_enc_paysig'   => urlencode($applePayData['applePaySignature']),
+	       'applepay_enc_pubkey'   => urlencode($applePayData['applePayKey']),
+	       'applepay_enc_keyhash'  => $applePayData['applePayKeyHash'],
+	       'applepay_tran_id'      => $applePayData['applePayTransactionId'],
+	       'applepay_card_desc'    => $applePayData['applePayType'],
+	       'applepay_card_scheme'  => $applePayData['applePayDisplayName'],
+	       'applepay_card_type'    => $applePayData['applePayNetwork'],
+	       'applepay_tran_id2'     => $applePayData['applePayTransactionIdentifier']
+	    );
+		
+		// Check for Repeat Billig Product
+        $order_items = $order->get_items();
+        foreach ($order_items as $product_data) {
+				
+            $productInfo = $product_data->get_data();
+            $productId = $productInfo['product_id'];
+            $productQuantity = $productInfo['quantity'];
+            $productTotal = $productInfo['total'];
+            $isSubProduct = get_post_meta($productId, '_subscription_telr', true);
+            $product = wc_get_product( $productId );
+				
+            if ( class_exists( 'WC_Subscriptions_Order' ) && $this->subs_method == 'woocomm' && 
+                ($product->get_type() == 'subscription' || $product->get_type() == 'variable-subscription')) {
+                $recurrCount = get_post_meta($productId, '_subscription_length', true);
+                if(empty(get_post_meta($productId, '_sale_price', true)) || get_post_meta($productId, '_sale_price', true) <= 0 ){
+                    $recurrAmount = get_post_meta($productId, '_subscription_price', true);
+                }else{
+                    $recurrAmount = get_post_meta($productId, '_sale_price', true);
+                }				
+                $recurrInterval = get_post_meta($productId, '_subscription_period_interval', true);
+                $recurrIntUnit = get_post_meta($productId, '_subscription_period', true);
+					
+                $params['repeat_amount'] = $recurrAmount * $productQuantity;
+                $params['repeat_period'] = $recurrIntUnit;
+                $params['repeat_interval'] = $recurrInterval;
+                $params['repeat_start'] = 'next';
+                $params['repeat_term'] = $recurrCount;
+                $params['repeat_auto'] = 0;
+                $params['repeat_type'] = 'recurring';
+					
+            }elseif($this->subs_method == 'telr' && $isSubProduct == 'yes'){
+                $recurrCount = get_post_meta($productId, '_continued_of', true);
+                $recurrAmount = get_post_meta($productId, '_payment_of', true);
+                $recurrInterval = get_post_meta($productId, '_every_number_of', true);
+                $recurrIntUnit = get_post_meta($productId, '_for_number_of', true);
+                $finalAmount = get_post_meta($productId, '_final_payment_of', true);
+                $scheduleDate = "";
+				
+                $params['repeat_amount'] = $recurrAmount * $productQuantity;
+                $params['repeat_period'] = $recurrIntUnit;
+                $params['repeat_interval'] = $recurrInterval;
+                $params['repeat_start'] = 'next';
+                $params['repeat_term'] = $recurrCount;
+                $params['repeat_auto'] = 1;
+                $params['repeat_type'] = 'recurring';
+                if( $finalAmount > 0){
+                    $params['repeat_final'] = $finalAmount * $productQuantity;    
+                }
+            }
+        }
+        // End Check for Repeat Billing Product
+		
+        $response = $this->remoteApiRequest($params);
+        return $response;			 
+    }
+
+	function remoteApiRequest($data)
+    {
+	    $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://secure.telr.com/gateway/remote.json');
+        curl_setopt($ch, CURLOPT_POST, count($data));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
+        $results = curl_exec($ch);
+        curl_close($ch);
+        $results = json_decode($results, true);
+        return $results;
     }
 
     private function validateOrderProducts($order_id){

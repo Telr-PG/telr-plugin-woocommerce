@@ -3,7 +3,7 @@
  * Plugin Name: Telr Secure Payments
  * Plugin URI: https://www.telr.com/
  * Description: Telr Secure Payments with Woocommerce Subscriptions & Seamless Mode Payments
- * Version: 8.3
+ * Version: 8.4
  * Author: Telr
  * Author URI: https://www.telr.com/
  * License: GPL2

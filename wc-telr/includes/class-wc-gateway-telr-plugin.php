@@ -28,10 +28,11 @@ class WC_Gateway_Telr_Plugin
     {
         register_activation_hook($this->file, array($this, 'activate'));
         register_deactivation_hook($this->file, array($this, 'deactivate'));
-        //add_action( 'admin_menu', array( $this, 'wpa_add_menu' ));
         add_action('plugins_loaded', array($this, 'bootstrap'));
         add_filter('plugin_action_links_' . plugin_basename($this->file), array($this, 'plugin_action_links'));
         add_action('init', array($this, 'init_ssl_check'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_data_tables'));
+        add_action('wp_enqueue_scripts', array($this, 'callback_for_setting_up_scripts'));
 		
         $telrSettings = (array) get_option('woocommerce_wctelr_settings', array());
         if($telrSettings['subscription_method'] == 'telr'){
@@ -42,8 +43,8 @@ class WC_Gateway_Telr_Plugin
             add_action('admin_enqueue_scripts', array($this, 'admin_load_js'));
             add_action( 'woocommerce_process_product_meta', array($this, 'woo_add_custom_general_fields_save') );
         }   
-    }
-	
+    }	
+    
     public function bootstrap()
     {
         try {
@@ -176,9 +177,19 @@ class WC_Gateway_Telr_Plugin
 
         </div><?php
     }
+	
+	function enqueue_admin_data_tables(){
+		wp_enqueue_script( 'datatables', plugins_url( '/js/jquery.dataTables.min.js', __FILE__ ), array('jquery') );
+		wp_enqueue_style('datatables',plugin_dir_url(__FILE__).'css/jquery.dataTables.min.css');
+		wp_enqueue_style('admin-style',plugin_dir_url(__FILE__).'css/admin-style.css');	
+	}
 
     function admin_load_js(){
         wp_enqueue_script( 'custom_js', plugins_url( '../assets/js/custom.js', __FILE__ ), array('jquery') );
+    }
+	
+	public function callback_for_setting_up_scripts(){
+        wp_enqueue_style('telr_custom_style',plugin_dir_url(__FILE__).'css/telr_custom_style.css');
     }
 
     // Save Fields
@@ -376,6 +387,23 @@ class WC_Gateway_Telr_Plugin
      */
     public function activate()
     {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'telr_capture_transcations';
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+            id int(15) NOT NULL AUTO_INCREMENT,
+            order_id varchar(100) NOT NULL,
+            capture_amt decimal(12,2) NOT NULL,
+            capture_date date NOT NULL,
+            refunded_amt decimal(12,2) NULL,
+            tran_ref varchar(200) NOT NULL,
+            fully_refunded int(1) NOT NULL,
+            PRIMARY KEY  (id)
+        ) $charset_collate;";
+		
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta( $sql );
+		
         if (!isset($this->setings)) {
             require_once($this->includes_path . 'class-wc-gateway-telr-settings.php');
             $this->settings = new WC_Gateway_Telr_Settings();
