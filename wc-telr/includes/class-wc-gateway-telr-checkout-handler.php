@@ -142,7 +142,7 @@ class WC_Gateway_Telr_Checkout_Handler
         $order    = new WC_Order($order_id);
 		
         $payment_url = $order->get_meta('_telr_url',true);
-        $style = '#telr {width: 100%; min-width: 600px; height: 600px; border: none;}';
+        $style = '#telr {width: 100%; height: 600px; border: none;}';
         $style .= ".order_details {display: none;}";
         echo "<style>$style</style>";
         echo ' <iframe id= "telr" src= "'.$payment_url.'"  sandbox="allow-forms allow-modals allow-popups-to-escape-sandbox allow-popups allow-scripts allow-top-navigation allow-same-origin"></iframe>';
