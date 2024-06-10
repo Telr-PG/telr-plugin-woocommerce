@@ -10,6 +10,6 @@ This plugin enables your WooCommerce powered platform to start accepting payment
 * Locate the line for Telr in plugins page and click on setting option
 * Add your 'Store ID' and 'Authentication Key' in the payment setting page and fill all required fileds (Note : If you have not 'Store ID' and 'Authentication Key' please contact with Telr support)
 
-### License ###
+## License
 
-Copyright © 2023 Telr. All rights reserved. See LICENSE for license details.
+This repository is available under the [MIT license](LICENSE).
