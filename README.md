@@ -12,4 +12,4 @@ This plugin enables your WooCommerce powered platform to start accepting payment
 
 ### License ###
 
-Copyright © 2023 Telr. All rights reserved. See LICENSE for license details.
+This repository is available under the [MIT license](LICENSE).
