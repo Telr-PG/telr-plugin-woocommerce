@@ -29,5 +29,7 @@ jQuery( function( $ ) {
 			$( '._payment_day_field ' ).hide();			
 		}
 	});
+	
+	$('[data-gateway_id="wc_telr_apple_pay"]').css('display', 'none');
 
 });

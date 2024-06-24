@@ -13,8 +13,8 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
     public function __construct()
     {
         $this->has_fields             = false;  // No additional fields in checkout page
-        $this->method_title           = __('Telr', 'wctelr');
-        $this->method_description     = __('Telr Checkout', 'wctelr');
+        $this->method_title           = __('Telr', 'wc_telr_apple_pay');
+        $this->method_description     = __('Telr Checkout', 'wc_telr_apple_pay');
         $this->supports = array(
             'subscriptions',
             'multiple_subscriptions',
@@ -33,8 +33,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         
         // Configure page fields
         $this->init_settings();
-
-        $this->enabled              = wc_gateway_telr()->settings->__get('enabled');
+        
         $this->title                = wc_gateway_telr()->settings->__get('apple_pay_title');
 
         $this->description          = wc_gateway_telr()->settings->__get('apple_pay_description');
@@ -212,8 +211,8 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
             return true;
         }
         
-        wc_gateway_telr()->settings->__set('enabled', 'no');
-        wc_gateway_telr()->settings->__set('enable_apple','no');
+        wc_gateway_telr()->settings->__set('enabled', 'yes');
+        wc_gateway_telr()->settings->__set('enable_apple','yes');
         wc_gateway_telr()->settings->save();
         ?>
         <div class="inline error"><p><strong><?php _e('Gateway disabled', 'wctelr'); ?></strong>: <?php _e('Telr Payments does not support your store currency.', 'wctelr'); ?></p></div>
