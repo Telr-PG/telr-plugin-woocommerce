@@ -63,7 +63,7 @@ class WC_Gateway_Telr_Settings
         if ($this->_is_setting_loaded) {
             return $this;
         }
-        $this->_settings     = array_merge((array) get_option('woocommerce_wctelr_settings', array()),(array) get_option('woocommerce_wc_telr_apple_pay_settings', array()));
+        $this->_settings     = array_merge((array) get_option('woocommerce_wc_telr_apple_pay_settings', array()),(array) get_option('woocommerce_wctelr_settings', array()));
         $this->_is_setting_loaded = true;
         return $this;
     }

@@ -51,8 +51,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         $this->default_order_status = wc_gateway_telr()->settings->__get('default_order_status');
         $this->payment_mode_woocomm = wc_gateway_telr()->settings->__get('payment_mode');
         $this->tran_type            = wc_gateway_telr()->settings->__get('tran_type');
-
-        $this->enable_apple         = wc_gateway_telr()->settings->__get('enable_apple');
+        
         $this->apple_mercahnt_id    = wc_gateway_telr()->settings->__get('apple_mercahnt_id');
         $this->apple_certificate    = wc_gateway_telr()->settings->__get('apple_certificate');
         $this->apple_key            = wc_gateway_telr()->settings->__get('apple_key');
@@ -212,7 +211,6 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         }
         
         wc_gateway_telr()->settings->__set('enabled', 'yes');
-        wc_gateway_telr()->settings->__set('enable_apple','yes');
         wc_gateway_telr()->settings->save();
         ?>
         <div class="inline error"><p><strong><?php _e('Gateway disabled', 'wctelr'); ?></strong>: <?php _e('Telr Payments does not support your store currency.', 'wctelr'); ?></p></div>
@@ -437,18 +435,16 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 
         <!-- Input needed to sent the card token -->
         <input type="hidden" id="telr-apple-card-token" name="telr-apple-card-token" value="" />
-        <input type="hidden" id="subscriptionProductCount" value="<?php echo $subscriptionProductCount; ?>" />
-        <input type="hidden" id="appleEnableConfig" value="<?php echo $this->enable_apple; ?>" />
+        <input type="hidden" id="subscriptionProductCount" value="<?php echo $subscriptionProductCount; ?>" />        
         <p class="telr_applePay_error"></p>
         <script type="text/javascript">
             var paymentData = {};
             var applePayOptionSelector = 'li.payment_method_wc_telr_apple_pay';
-            var applePayButtonId = 'telr_applePay';
-            var appleEnableConfig = document.getElementById('appleEnableConfig').value;		
+            var applePayButtonId = 'telr_applePay';            	
             // Initially hide the Apple Pay as a payment option.
             hideAppleApplePayOption();
             // If Apple Pay is available as a payment option, and enabled on the checkout page, un-hide the payment option.
-            if (window.ApplePaySession && appleEnableConfig == 'yes') {
+            if (window.ApplePaySession) {
                 var canMakePayments = ApplePaySession.canMakePayments("<?php echo $this->apple_mercahnt_id; ?>");
                 if ( canMakePayments ) {
                     setTimeout( function() {

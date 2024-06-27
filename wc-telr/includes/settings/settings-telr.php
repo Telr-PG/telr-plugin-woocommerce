@@ -164,12 +164,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     public static function apple_pay_settings() {
 		
 	return array(    	
-		'enable_apple' => array(
-			'title'     => __('Enable/Disable', 'wctelr'),
-			'type'      => 'checkbox',
-			'label'     => __('Enable ApplePay', 'wctelr'),
-			'default'   => 'yes'
-		),     	
+		     	
 		'remote_v2_auth_key'  => array(
 			'title'       => __( 'Telr Apple Auth Key', 'wctelr' ),
 			'type'        => 'text',
