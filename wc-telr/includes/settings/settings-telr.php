@@ -163,8 +163,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	*/
     public static function apple_pay_settings() {
 		
-	return array(    	
-		     	
+	return array(		     	
 		'remote_v2_auth_key'  => array(
 			'title'       => __( 'Telr Apple Auth Key', 'wctelr' ),
 			'type'        => 'text',
