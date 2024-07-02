@@ -14,9 +14,7 @@ require_once($includes_path. 'abstracts/abstract-wc-gateway-telr-apple.php');
 class WC_Gateway_Telr_Checkout_Handler
 {
     public function __construct()
-    {
-        $this->telr_payment_gateway = new WC_Telr_Payment_Gateway();
-        $this->telr_apple_payment_gateway = new WC_Telr_Apple_Payment_Gateway();																		
+    {        																		
         $this->payment_mode = wc_gateway_telr()->settings->__get('payment_mode');
         $this->payment_mode_woocomm = wc_gateway_telr()->settings->__get('payment_mode');
         $this->subs_method = wc_gateway_telr()->settings->__get('subscription_method');

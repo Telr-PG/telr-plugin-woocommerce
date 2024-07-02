@@ -185,7 +185,7 @@ class WC_Gateway_Telr_Plugin
 	}
 
     function admin_load_js(){
-        wp_enqueue_script( 'custom_js', plugins_url( '../assets/js/custom.js', __FILE__ ), array('jquery') );
+        wp_enqueue_script( 'custom_js', plugins_url( '../assets/js/custom.js', __FILE__ ), array('jquery'));
     }
 	
 	public function callback_for_setting_up_scripts(){

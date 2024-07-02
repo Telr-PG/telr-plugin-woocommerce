@@ -526,8 +526,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
             return true;
         }
         
-        wc_gateway_telr()->settings->__set('enabled','no');
-        wc_gateway_telr()->settings->__set('enable_apple','no');														
+        wc_gateway_telr()->settings->__set('enabled','yes');        												
         wc_gateway_telr()->settings->save();
         ?>
         <div class="inline error"><p><strong><?php _e('Gateway disabled', 'wctelr'); ?></strong>: <?php _e('Telr Payments does not support your store currency.', 'wctelr'); ?></p></div>
