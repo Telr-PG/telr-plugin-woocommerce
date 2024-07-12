@@ -417,19 +417,21 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 
         $telrSupportedNetworks = $this->getTelrSupportedNetworks();
 		
-        if (in_array('APPLEPAY MADA',$telrSupportedNetworks)) {
-            array_push( $supported_networks, 'mada' );
-            $country_code = 'SA';
-        }		
-        if (in_array('APPLEPAY AMEX',$telrSupportedNetworks)) {
-            array_push( $supported_networks, 'amex' );
-        }
-        if (in_array('APPLEPAY DISCOVER',$telrSupportedNetworks)) {
-            array_push( $supported_networks, 'discover' );
-        }
-        if (in_array('APPLEPAY JCB',$telrSupportedNetworks)) {
-            array_push( $supported_networks, 'jcb' );
-        }
+        if(!empty($telrSupportedNetworks)){
+            if (in_array('APPLEPAY MADA',$telrSupportedNetworks)) {
+                array_push( $supported_networks, 'mada' );
+                $country_code = 'SA';
+            }		
+            if (in_array('APPLEPAY AMEX',$telrSupportedNetworks)) {
+                array_push( $supported_networks, 'amex' );
+            }
+            if (in_array('APPLEPAY DISCOVER',$telrSupportedNetworks)) {
+               array_push( $supported_networks, 'discover' );
+            }
+            if (in_array('APPLEPAY JCB',$telrSupportedNetworks)) {
+               array_push( $supported_networks, 'jcb' );
+            }
+        }			
 
         ?>
 
