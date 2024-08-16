@@ -857,7 +857,27 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
                 });
             </script>
             <?php
-        }
+        }else{
+			$path = plugins_url( '../../assets/images/', __FILE__ );
+			$telrSupportedNetworks = wc_gateway_telr()->admin->getTelrSupportedNetworks();
+			if(!empty($telrSupportedNetworks)){
+				foreach($telrSupportedNetworks as $card){
+					if($card == 'VISA'){
+						echo "<img src='".$path."visa.png' alt='VISA'>";
+					}elseif($card == 'MASTERCARD'){
+						echo "<img src='".$path."mastercard.png' alt='MASTERCARD'>";
+					}elseif($card == 'JCB'){
+						echo "<img src='".$path."jcb.png' alt='JCB'>";
+					}elseif($card == 'MADA'){
+						echo "<img src='".$path."mada.png' alt='MADA'>";
+					}elseif($card == 'AMEX'){
+						echo "<img src='".$path."amex.png' alt='AMEX'>";
+					}elseif($card == 'MAESTRO'){
+						echo "<img src='".$path."maestro.png' alt='MAESTRO'>";
+					}					
+				}
+			}			
+		}
     }
 
     protected function getTelrSavedCards($custId)

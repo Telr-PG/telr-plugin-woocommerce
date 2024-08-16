@@ -305,4 +305,32 @@ class WC_Gateway_Telr_Admin_Handler
 		curl_close($ch);		
 		return $results;		
 	}
+	
+	public function getTelrSupportedNetworks(){
+		
+		$testmode       = $this->testmode == 'yes' ? 1 : 0;
+		
+        $data =array(
+            'ivp_store' => $this->store_id,			
+            'ivp_currency' => get_woocommerce_currency(),
+            'ivp_test' => $testmode
+        );
+		
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://secure.telr.com/gateway/api_store_terminals.json');		
+        curl_setopt($ch, CURLOPT_POST, count($data));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
+        $results = curl_exec($ch);
+        $results = preg_replace('/,\s*([\]}])/m', '$1', $results);
+        $results = json_decode($results, true);
+		
+		if (isset($results['StoreTerminalsResponse']['CardList'])){
+           return  $results['StoreTerminalsResponse']['CardList'];
+        }else{
+           return array();
+        }       
+
+	}
 }
