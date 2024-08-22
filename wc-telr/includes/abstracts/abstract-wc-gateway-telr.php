@@ -859,24 +859,41 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
             <?php
         }else{
 			$path = plugins_url( '../../assets/images/', __FILE__ );
-			$telrSupportedNetworks = wc_gateway_telr()->admin->getTelrSupportedNetworks();
-			if(!empty($telrSupportedNetworks)){
-				foreach($telrSupportedNetworks as $card){
-					if($card == 'VISA'){
-						echo "<img src='".$path."visa.png' alt='VISA'>";
-					}elseif($card == 'MASTERCARD'){
-						echo "<img src='".$path."mastercard.png' alt='MASTERCARD'>";
-					}elseif($card == 'JCB'){
-						echo "<img src='".$path."jcb.png' alt='JCB'>";
-					}elseif($card == 'MADA'){
-						echo "<img src='".$path."mada.png' alt='MADA'>";
-					}elseif($card == 'AMEX'){
-						echo "<img src='".$path."amex.png' alt='AMEX'>";
-					}elseif($card == 'MAESTRO'){
-						echo "<img src='".$path."maestro.png' alt='MAESTRO'>";
-					}					
+			$url = parse_url($path, PHP_URL_PATH);
+			$realPath = realpath($_SERVER['DOCUMENT_ROOT'] . $url);
+
+			if ($realPath && is_dir($realPath)) {
+				$telrSupportedNetworks = wc_gateway_telr()->admin->getTelrSupportedNetworks();
+				if(!empty($telrSupportedNetworks)){
+					foreach($telrSupportedNetworks as $card){
+						if($card == 'VISA'){
+							echo "<img src='".$path."spacer.gif' alt='VISA' class='logo_visa'>";
+						}elseif($card == 'MASTERCARD'){
+							echo "<img src='".$path."spacer.gif' alt='MASTERCARD' class='logo_mastercard'>";
+						}elseif($card == 'JCB'){
+							echo "<img src='".$path."spacer.gif' alt='JCB' class='logo_jcb'>";
+						}elseif($card == 'MADA'){
+							echo "<img src='".$path."spacer.gif' alt='MADA' class='logo_mada'>";
+						}elseif($card == 'AMEX'){
+							echo "<img src='".$path."spacer.gif' alt='AMEX' class='logo_amex'>";
+						}elseif($card == 'MAESTRO'){
+							echo "<img src='".$path."spacer.gif' alt='MAESTRO' class='logo_masterpass'>";
+						}elseif($card == 'PayPal'){
+							echo "<img src='".$path."spacer.gif' alt='PayPal' class='logo_paypal'>";
+						}elseif($card == 'UnionPay'){
+							echo "<img src='".$path."spacer.gif' alt='UnionPay' class='logo_cup'>";
+						}elseif($card == 'ApplePay'){
+							echo "<img src='".$path."spacer.gif' alt='ApplePay' class='logo_applepay'>";
+						}elseif($card == 'STCPAY'){
+							echo "<img src='".$path."spacer.gif' alt='STCPAY' class='logo_stcpay'>";
+						}elseif($card == 'URPAY'){
+							echo "<img src='".$path."spacer.gif' alt='URPAY' class='logo_urpay'>";
+						}elseif($card == 'Tabby'){
+							echo "<img src='".$path."spacer.gif' alt='URPAY' class='logo_tabby'>";
+						}
+					}
 				}
-			}			
+            }
 		}
     }
 

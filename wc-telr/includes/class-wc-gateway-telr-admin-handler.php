@@ -307,7 +307,8 @@ class WC_Gateway_Telr_Admin_Handler
 	}
 	
 	public function getTelrSupportedNetworks(){
-		
+        $cards = array();
+        $paymentOptions = array();
 		$testmode       = $this->testmode == 'yes' ? 1 : 0;
 		
         $data =array(
@@ -326,11 +327,12 @@ class WC_Gateway_Telr_Admin_Handler
         $results = preg_replace('/,\s*([\]}])/m', '$1', $results);
         $results = json_decode($results, true);
 		
-		if (isset($results['StoreTerminalsResponse']['CardList'])){
-           return  $results['StoreTerminalsResponse']['CardList'];
-        }else{
-           return array();
-        }       
-
+        if (isset($results['StoreTerminalsResponse']['CardList'])){
+           $cards =  $results['StoreTerminalsResponse']['CardList'];
+        }
+        if (isset($results['StoreTerminalsResponse']['PaymentOption'])){
+           $paymentOptions =  $results['StoreTerminalsResponse']['PaymentOption'];
+        }
+        return array_merge($cards,$paymentOptions);
 	}
 }
