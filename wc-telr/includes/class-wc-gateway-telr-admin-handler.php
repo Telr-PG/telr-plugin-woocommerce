@@ -309,7 +309,7 @@ class WC_Gateway_Telr_Admin_Handler
 	public function getTelrSupportedNetworks(){
         $cards = array();
         $paymentOptions = array();
-		$testmode       = $this->testmode == 'yes' ? 1 : 0;
+        $testmode       = $this->testmode == 'yes' ? 1 : 0;
 		
         $data =array(
             'ivp_store' => $this->store_id,			
