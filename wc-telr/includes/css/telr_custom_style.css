@@ -45,3 +45,145 @@
         height: var(--wallet-button-height-mobile) !important;
     }
 }
+
+img.logo_visa {
+	height: 32px !important;
+	width: 64px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: 0 0;
+}
+img.logo_visa.logo_off {
+       background-position: 0 -32px;
+}
+img.logo_mastercard {
+	height: 32px !important;
+	width: 50px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -65px 0;
+}
+img.logo_mastercard.logo_off {
+	background-position: -65px -32px;
+}
+img.logo_amex {
+	height: 32px !important;
+	width: 55px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -116px 0;
+}
+img.logo_amex.logo_off {
+	background-position: -116px -32px;
+}
+img.logo_jcb {
+	height: 32px !important;
+	width: 51px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -172px 0;
+}
+img.logo_jcb.logo_off {
+	background-position: -172px -32px;
+}
+img.logo_masterpass {
+	height: 32px !important;
+	width: 145px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -224px 0;
+}
+img.logo_masterpass.logo_off {
+	background-position: -224px -32px;
+}
+img.logo_paypal {
+	height: 32px !important;
+	width: 56px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -370px 0;
+}
+img.logo_paypal.logo_off {
+	background-position: -370px -32px;
+}
+img.logo_sadad {
+	height: 32px !important;
+	width: 85px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -427px 0;
+}
+img.logo_sadad.logo_off {
+	background-position: -427px -32px;
+}
+img.logo_billdesk {
+	height: 32px !important;
+	width: 68px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -513px 0;
+}
+img.logo_billdesk.logo_off {
+	background-position: -513px -32px;
+}
+img.logo_finnet {
+	height: 32px !important;
+	width: 73px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -582px 0;
+}
+img.logo_finnet.logo_off {
+	background-position: -582px -32px;
+}
+img.logo_tcash {
+	height: 32px !important;
+	width: 96px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -656px 0;
+}
+img.logo_tcash.logo_off {
+	background-position: -656px -32px;
+}
+img.logo_rupay {
+	height: 32px !important;
+	width: 95px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -753px 0;
+}
+img.logo_rupay.logo_off {
+	background-position: -753px -32px;
+}
+img.logo_mada {
+	height: 32px !important;
+	width: 75px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -851px 0;
+}
+img.logo_mada.logo_off {
+	background-position: -851px -32px;
+}
+img.logo_stcpay {
+	height: 32px !important;
+	width: 90px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -931px 0;
+}
+img.logo_stcpay.logo_off {
+	background-position: -931px -32px;
+}
+img.logo_cup {
+	height: 32px !important;
+	width: 62px;
+	background: url('../../assets/images/paymethods.png') 0 0;
+	background-position: -1026px 0;
+}
+img.logo_cup.logo_off {
+	background-position: -1026px -32px;
+}
+img.logo_applepay {
+	height: 32px !important;
+	width: 53px;
+	background: url('../../assets/images/applepay_logo.png') 0 0;
+}
+img.logo_urpay {
+	height: 32px !important;
+	width: 74px;
+	background: url('../../assets/images/urpay_logo.jpg') 0 0;
+}
+img.logo_tabby {
+	height: 30px !important;
+	width: 70px;
+	background: url('../../assets/images/tabbysmall.png') 0 0;
+}

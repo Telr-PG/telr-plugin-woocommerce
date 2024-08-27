@@ -415,7 +415,7 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
         $supported_networks    = ['masterCard','visa'];
         $merchant_capabilities = [ 'supports3DS', 'supportsCredit', 'supportsDebit' ];
 
-        $telrSupportedNetworks = $this->getTelrSupportedNetworks();
+        $telrSupportedNetworks = wc_gateway_telr()->admin->getTelrSupportedNetworks();
 		
         if(!empty($telrSupportedNetworks)){
             if (in_array('APPLEPAY MADA',$telrSupportedNetworks)) {
@@ -792,27 +792,6 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
             curl_close( $ch );
             exit();
         }
-    }
-	
-	public function getTelrSupportedNetworks(){
-		
-        $data =array(
-            'ivp_store' => wc_gateway_telr()->settings->__get('store_id'),			
-            'ivp_currency' => get_woocommerce_currency(),
-            'ivp_test' => 0
-        );
-		
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://secure.telr.com/gateway/api_store_terminals.json');		
-        curl_setopt($ch, CURLOPT_POST, count($data));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
-        $results = curl_exec($ch);
-        $results = preg_replace('/,\s*([\]}])/m', '$1', $results);
-        $results = json_decode($results, true);
-        return  $results['StoreTerminalsResponse']['CardList'];
-
-	}
+    }	
 	 
 }
