@@ -893,7 +893,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 						}
 					}
 				}
-            }
+			}
 		}
     }
 
