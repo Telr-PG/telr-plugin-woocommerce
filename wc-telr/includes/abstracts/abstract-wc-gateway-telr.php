@@ -69,7 +69,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
         $this->payment_mode_woocomm = wc_gateway_telr()->settings->__get('payment_mode');
         
         if($this->language == 'ar'){
-            $this->order_button_text      = __('المتابعة للدفع', 'wctelr');
+            $this->order_button_text = __('المتابعة للدفع', 'wctelr');
         }
 
         //actions
