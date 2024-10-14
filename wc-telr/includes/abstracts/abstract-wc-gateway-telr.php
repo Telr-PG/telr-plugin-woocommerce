@@ -17,6 +17,7 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
         $this->has_fields             = false;  // No additional fields in checkout page
         $this->method_title           = __('Telr', 'wctelr');
         $this->method_description     = __('Telr Checkout', 'wctelr');
+        $this->order_button_text      = __('Proceed to Pay', 'wctelr');
         $this->supports = array(
             'subscriptions',
             'multiple_subscriptions',
@@ -69,9 +70,8 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
         
         if($this->language == 'ar'){
             $this->order_button_text      = __('المتابعة للدفع', 'wctelr');
-        }else{
-            $this->order_button_text      = __('Proceed to Pay', 'wctelr');
         }
+
         //actions
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options'));
         add_action('woocommerce_receipt_' . $this->id, array( $this, 'receipt_page'));
