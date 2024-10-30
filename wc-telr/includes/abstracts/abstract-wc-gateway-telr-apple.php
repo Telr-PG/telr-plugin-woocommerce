@@ -8,6 +8,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use Automattic\WooCommerce\Utilities\OrderUtil;
+
 class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 {
     public function __construct()
