@@ -10,6 +10,15 @@ if (!defined('ABSPATH')) {
 
 class WC_Gateway_Telr_Plugin
 {
+    public $file;
+    public $plugin_path;
+    public $plugin_url;
+    public $includes_path;
+    public $settings;
+    public $gateway_loader;
+    public $admin;
+    public $checkout;
+
     const DEPENDENCIES_UNSATISFIED  = 1;
 
     public function __construct($file)

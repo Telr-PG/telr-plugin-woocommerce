@@ -12,6 +12,27 @@ use Automattic\WooCommerce\Utilities\OrderUtil;
 
 class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 {
+    public $store_id;
+    public $subs_method;
+    public $store_secret;
+    public $remote_store_secret;
+    public $testmode;
+    public $debug;
+    public $order_status;
+    public $cart_desc;
+    public $payment_mode;
+    public $language;
+    public $default_order_status;
+    public $payment_mode_woocomm;
+    public $tran_type;
+    public $apple_mercahnt_id;
+    public $apple_certificate;
+    public $apple_key;
+    public $domain;
+    public $display_name;
+    public $apple_type;
+    public $apple_theme;
+
     public function __construct()
     {
         $this->has_fields             = false;  // No additional fields in checkout page
@@ -606,16 +627,16 @@ class WC_Telr_Apple_Payment_Gateway extends WC_Payment_Gateway
 			    var applePayKey           =  data.paymentData.header.ephemeralPublicKey;
 			    var applePayTransactionIdentifier = data.transactionIdentifier;
 
-			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayVersion', name: 'applePayVersion',	value: applePayVersion}).appendTo(jQuery('.woocommerce-checkout'));
-			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayData', name: 'applePayData',	value: applePayData}).appendTo(jQuery('.woocommerce-checkout'));
-			    jQuery('<input>').attr({type: 'hidden',	id: 'applePaySignature', name: 'applePaySignature',	value: applePaySignature}).appendTo(jQuery('.woocommerce-checkout'));
-			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayTransactionId', name: 'applePayTransactionId',	value: applePayTransactionId}).appendTo(jQuery('.woocommerce-checkout'));
-			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayType', name: 'applePayType',	value: applePayType}).appendTo(jQuery('.woocommerce-checkout'));
-			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayNetwork', name: 'applePayNetwork',	value: applePayNetwork}).appendTo(jQuery('.woocommerce-checkout'));
-			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayDisplayName', name: 'applePayDisplayName',	value: applePayDisplayName}).appendTo(jQuery('.woocommerce-checkout'));
-			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayKeyHash', name: 'applePayKeyHash',	value: applePayKeyHash}).appendTo(jQuery('.woocommerce-checkout'));
-			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayKey', name: 'applePayKey',	value: applePayKey}).appendTo(jQuery('.woocommerce-checkout'));
-			    jQuery('<input>').attr({type: 'hidden',	id: 'applePayTransactionIdentifier', name: 'applePayTransactionIdentifier',	value: applePayTransactionIdentifier}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applepayversion', name: 'applepayversion',	value: applePayVersion}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applepaydata', name: 'applepaydata',	value: applePayData}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applepaysignature', name: 'applepaysignature',	value: applePaySignature}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applepaytransactionid', name: 'applepaytransactionid',	value: applePayTransactionId}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applepaytype', name: 'applepaytype',	value: applePayType}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applepaynetwork', name: 'applepaynetwork',	value: applePayNetwork}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applepaydisplayname', name: 'applepaydisplayname',	value: applePayDisplayName}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applepaykeyhash', name: 'applepaykeyhash',	value: applePayKeyHash}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applepaykey', name: 'applepaykey',	value: applePayKey}).appendTo(jQuery('.woocommerce-checkout'));
+			    jQuery('<input>').attr({type: 'hidden',	id: 'applepaytransactionidentifier', name: 'applepaytransactionidentifier',	value: applePayTransactionIdentifier}).appendTo(jQuery('.woocommerce-checkout'));
 			
 			    jQuery('#place_order').prop("disabled",false);
 			    jQuery('#place_order').trigger('click');

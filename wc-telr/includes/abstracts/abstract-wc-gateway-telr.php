@@ -12,6 +12,18 @@ use Automattic\WooCommerce\Utilities\OrderUtil;
 
 class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 {
+    public $store_id;
+    public $store_secret;
+    public $remote_store_secret;
+    public $testmode;
+    public $debug;
+    public $order_status;
+    public $cart_desc;
+    public $payment_mode;
+    public $language;
+    public $default_order_status;
+    public $payment_mode_woocomm;
+
     public function __construct()
     {
         $this->has_fields             = false;  // No additional fields in checkout page
