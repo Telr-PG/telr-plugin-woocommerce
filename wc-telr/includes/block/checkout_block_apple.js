@@ -36,8 +36,7 @@ if(is_admin){
 					
 					useEffect(() => {
 						// Setup payment token handling
-						const unsubscribePayment = onPaymentSetup(async () => {			
-						   
+						const unsubscribePayment = onPaymentSetup(async () => {
 							const applePayVersion = document.querySelector("#applepayversion").value;
 							const applePayData = document.querySelector("#applepaydata").value;
 							const applePaySignature = document.querySelector("#applepaysignature").value;
@@ -53,21 +52,19 @@ if(is_admin){
    							
 							processingMessage.style.display = 'block';
 
-							if (customDataIsValid) { console.log('appleData Validated');
-                                                                const paymentMethodData = {   //apple_pay_version,
-                                                                                              applePayVersion,
-                                                                                              applePayData,
-                                                                                              applePaySignature,
-                                                                                              applePayTransactionId,
-                                                                                              applePayType,
-                                                                                              applePayNetwork,
-                                                                                              applePayDisplayName,
-                                                                                              applePayKeyHash,
-                                                                                              applePayKey,
-                                                                                              applePayTransactionIdentifier,
-                                                                                         };
-                                                               console.log('paymentMethodData:', paymentMethodData);
-
+							if (customDataIsValid) {
+								const paymentMethodData = {
+								                            applePayVersion,
+								                            applePayData,
+								                            applePaySignature,
+								                            applePayTransactionId,
+								                            applePayType,
+								                            applePayNetwork,
+								                            applePayDisplayName,
+								                            applePayKeyHash,
+								                            applePayKey,
+								                            applePayTransactionIdentifier,
+								};
 								return {
 									type: emitResponse.responseTypes.SUCCESS,
 									meta: { paymentMethodData },
@@ -198,7 +195,7 @@ if(is_admin){
 	}
 
 	setTimeout(() => {
-        const applePayOption = document.querySelector('#radio-control-wc-payment-method-options-wc_telr_apple_pay');
+		const applePayOption = document.querySelector('#radio-control-wc-payment-method-options-wc_telr_apple_pay');
 		const placeOrderButton = document.querySelector(".wc-block-components-checkout-place-order-button");
 		const applePayButton = document.querySelector("#telr_applePay");
 		const allPaymentOptions = document.querySelectorAll('[name="radio-control-wc-payment-method-options"]');
