@@ -46,15 +46,15 @@ final class WC_Telr_Apple_Blocks extends AbstractPaymentMethodType
     public function get_payment_method_data()
     {
 	$telrSupportedNetworks = array();
-	$title = $this->settings['apple_pay_title'];
-	$description = $this->settings['apple_pay_description'];		
-	$language = $this->settings['language'];
-	$subs_method = $this->settings['subscription_method'];	
+	$title = isset($this->settings['apple_pay_title']) ? $this->settings['apple_pay_title'] : '';
+	$description = isset($this->settings['apple_pay_description']) ? $this->settings['apple_pay_description'] : '';
+	$language = isset($this->settings['language']) ? $this->settings['language'] : '';
+	$subs_method = isset($this->settings['subscription_method']) ? $this->settings['subscription_method'] : '';
 	$order_button_text = "Place Order";
 		
-	$apple_mercahnt_id = $this->settings['apple_mercahnt_id'];
-	$apple_type = $this->settings['apple_type'];
-	$apple_theme = $this->settings['apple_theme'];
+	$apple_mercahnt_id = isset($this->settings['apple_mercahnt_id']) ? $this->settings['apple_mercahnt_id'] : '';
+	$apple_type = isset($this->settings['apple_type']) ? $this->settings['apple_type'] : '';
+	$apple_theme = isset($this->settings['apple_theme']) ? $this->settings['apple_theme'] : '';
 		
 	
 	if (is_admin()) {
