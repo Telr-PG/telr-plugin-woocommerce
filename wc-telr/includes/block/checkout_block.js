@@ -21,53 +21,53 @@ const iconPaths = {
 
 let Content;
 if(paymentMode == 0){
-	Content = () => {
-		return (window.wp.htmlEntities.decodeEntities(settings.description || ''));
-	};
+    Content = () => {
+        return (window.wp.htmlEntities.decodeEntities(settings.description || ''));
+    };
 }else{
-	Content = (props) => {
-		const { eventRegistration, emitResponse } = props;
-		const { onCheckoutSuccess } = eventRegistration;
-		useEffect(() => {
-			// Setup checkout success handling
-			const unsubscribeCheckout = onCheckoutSuccess((response) => {
-				// This code runs after a successful checkout
-				console.log("Checkout completed successfully!");			
-				const iframeUrl = response.processingResponse.paymentDetails.iframe_url;
-				const placeOrderButton = document.querySelector(".wc-block-components-checkout-place-order-button");
-				const existingIframe = document.getElementById("telr_iframe");
-				const networkIcons = document.getElementById("network_icons");
-				if (iframeUrl) {
-					existingIframe.previousElementSibling.remove();
-					existingIframe.src = iframeUrl;				
-					existingIframe.height = "550";
-					existingIframe.style.display = "block";
-					placeOrderButton.style.display = "none";
-					networkIcons.style.display = "none";
-				}			
-			});
-			// Cleanup functions for observers
-			return () => {
-				unsubscribeCheckout();
-			};
-		}, [emitResponse, onCheckoutSuccess]);
-		
-		return  Object(window.wp.element.createElement)(window.wp.element.Fragment, null,
-					Object(window.wp.element.createElement)('span', null, 
-						window.wp.htmlEntities.decodeEntities(settings.description || '')
-					),
-					Object(window.wp.element.createElement)('iframe', {
-						src: "",
-						id: "telr_iframe",
-						width: "100%",
-						height: "0",
-						frameBorder: "0",
-						allowFullScreen: true,
-						style:{ display: 'none' },
-					})
-				);		
-	};
-}	
+    Content = (props) => {
+        const { eventRegistration, emitResponse } = props;
+        const { onCheckoutSuccess } = eventRegistration;
+        useEffect(() => {
+            // Setup checkout success handling
+            const unsubscribeCheckout = onCheckoutSuccess((response) => {
+                // This code runs after a successful checkout
+                console.log("Checkout completed successfully!");
+                const iframeUrl = response.processingResponse.paymentDetails.iframe_url;
+                const placeOrderButton = document.querySelector(".wc-block-components-checkout-place-order-button");
+                const existingIframe = document.getElementById("telr_iframe");
+                const networkIcons = document.getElementById("network_icons");
+                if (iframeUrl) {
+                    existingIframe.previousElementSibling.remove();
+                    existingIframe.src = iframeUrl;
+                    existingIframe.height = "550";
+                    existingIframe.style.display = "block";
+                    placeOrderButton.style.display = "none";
+                    networkIcons.style.display = "none";
+                }
+            });
+            // Cleanup functions for observers
+            return () => {
+                unsubscribeCheckout();
+            };
+        }, [emitResponse, onCheckoutSuccess]);
+
+        return  Object(window.wp.element.createElement)(window.wp.element.Fragment, null,
+                    Object(window.wp.element.createElement)('span', null,
+                        window.wp.htmlEntities.decodeEntities(settings.description || '')
+                    ),
+                    Object(window.wp.element.createElement)('iframe', {
+                        src: "",
+                        id: "telr_iframe",
+                        width: "100%",
+                        height: "0",
+                        frameBorder: "0",
+                        allowFullScreen: true,
+                        style:{ display: 'none' },
+                    })
+                );
+    };
+}
 // Register the payment method block
 const Block_Gateway = {
     name: 'wctelr',
@@ -84,7 +84,7 @@ const Block_Gateway = {
                         src: iconPaths[network].src,
                         alt: iconPaths[network].alt,
                         className: iconPaths[network].className,
-						style: { maxHeight: '30px' }
+                        style: { maxHeight: '30px' }
                     });
                 }
                 return null;
