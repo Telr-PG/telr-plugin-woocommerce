@@ -31,10 +31,10 @@ const handleMessage = (e) => {
             if (telrMessage.message_id !== undefined) {
                 switch (telrMessage.message_id) {
                     case "return_telr_token":
-                        const payment_token = telrMessage.payment_token;                        
-						if(payment_token != ""){
-							document.querySelector("#telr_payment_token").value = payment_token;				
-						}                         
+                        const payment_token = telrMessage.payment_token;
+                        if(payment_token != ""){
+                            document.querySelector("#telr_payment_token").value = payment_token;
+                        }
                         break;
                 }
             }
@@ -77,56 +77,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Content function to create the iframe
 const Content = (props) => {
-	const { eventRegistration, emitResponse } = props;
-	const { onPaymentSetup, onCheckoutSuccess } = eventRegistration;
-	
-	useEffect(() => {
-		// Setup payment token handling
-		const unsubscribePayment = onPaymentSetup(async () => {			
-			const telr_payment_token = document.querySelector("#telr_payment_token").value;
-			const customDataIsValid = !!telr_payment_token.length;			
-			if (customDataIsValid) {
-				return {
-					type: emitResponse.responseTypes.SUCCESS,
-					meta: {
-						paymentMethodData: {
-							telr_payment_token,
-						},
-					},
-				};
-			}
-			return {
-				type: emitResponse.responseTypes.ERROR,
-				message: 'There was an error',
-			};
-		});
-		// Setup checkout success handling
-		const unsubscribeCheckout = onCheckoutSuccess((response) => {
-			// This code runs after a successful checkout
-			console.log("Checkout completed successfully!");			
-			const iframeUrl = response.processingResponse.paymentDetails.iframe_url;
-			const placeOrderButton = document.querySelector(".wc-block-components-checkout-place-order-button");
-			const existingIframe = document.getElementById("telr_iframe");
-			if (iframeUrl) {				
-				existingIframe.src = iframeUrl;
-				placeOrderButton.style.display = "none";
-			}			
-		});
-		// Cleanup functions for both observers
-		return () => {
-			unsubscribePayment();
-			unsubscribeCheckout();
-		};
-	}, [emitResponse, onPaymentSetup, onCheckoutSuccess]);
-	
+    const { eventRegistration, emitResponse } = props;
+    const { onPaymentSetup, onCheckoutSuccess } = eventRegistration;
+
+    useEffect(() => {
+        // Setup payment token handling
+        const unsubscribePayment = onPaymentSetup(async () => {
+            const telr_payment_token = document.querySelector("#telr_payment_token").value;
+            const customDataIsValid = !!telr_payment_token.length;
+            if (customDataIsValid) {
+                return {
+                    type: emitResponse.responseTypes.SUCCESS,
+                    meta: {
+                        paymentMethodData: {
+                            telr_payment_token,
+                        },
+                    },
+                };
+            }
+            return {
+                type: emitResponse.responseTypes.ERROR,
+                message: 'There was an error',
+            };
+        });
+        // Setup checkout success handling
+        const unsubscribeCheckout = onCheckoutSuccess((response) => {
+            // This code runs after a successful checkout
+            console.log("Checkout completed successfully!");
+            const iframeUrl = response.processingResponse.paymentDetails.iframe_url;
+            const placeOrderButton = document.querySelector(".wc-block-components-checkout-place-order-button");
+            const existingIframe = document.getElementById("telr_iframe");
+            if (iframeUrl) {
+                existingIframe.src = iframeUrl;
+                placeOrderButton.style.display = "none";
+            }
+        });
+        // Cleanup functions for both observers
+        return () => {
+            unsubscribePayment();
+            unsubscribeCheckout();
+        };
+    }, [emitResponse, onPaymentSetup, onCheckoutSuccess]);
+
     return Object(window.wp.element.createElement)(window.wp.element.Fragment, null,
         Object(window.wp.element.createElement)('iframe', {
             src: iframeUrl,
-			id: "telr_iframe",
-			width: "100%",
-			height: "300",
-			frameBorder: "0",
-			allowFullScreen: true
+            id: "telr_iframe",
+            width: "100%",
+            height: "300",
+            frameBorder: "0",
+            allowFullScreen: true
         }),
         Object(window.wp.element.createElement)('input', {
             type: "hidden",
