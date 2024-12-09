@@ -56,18 +56,18 @@ function telr_woocommerce_block_support()
     if (class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType'))
     {
         require_once dirname( __FILE__ ) . '/includes/checkout-block.php';
-		require_once dirname(__FILE__) . '/includes/checkout-block-apple.php';
+        require_once dirname(__FILE__) . '/includes/checkout-block-apple.php';
 
         add_action(
-          'woocommerce_blocks_payment_method_type_registration',
-          function(PaymentMethodRegistry $payment_method_registry) {
-            $container = Automattic\WooCommerce\Blocks\Package::container();
-            $container->register(
-                WC_Telr_Blocks::class,
-                function() {
-                    return new WC_Telr_Blocks();
-                }
-            );
+            'woocommerce_blocks_payment_method_type_registration',
+            function(PaymentMethodRegistry $payment_method_registry) {
+                $container = Automattic\WooCommerce\Blocks\Package::container();
+                $container->register(
+                    WC_Telr_Blocks::class,
+                    function() {
+                        return new WC_Telr_Blocks();
+                    }
+                );
             $payment_method_registry->register($container->get(WC_Telr_Blocks::class));
 
             $container->register(
