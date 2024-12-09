@@ -79,9 +79,8 @@ if(is_admin){
                             processingMessage.style.display = 'none';
                         });
                         const unsubscribeCheckoutError = onCheckoutFail((error) => {
-                                                        //console.log(error);
                             processingMessage.style.display = 'none';
-                                                });
+                        });
                         // Cleanup functions for both observers
                         return () => {
                             unsubscribePayment();
@@ -144,21 +143,21 @@ if(is_admin){
                                     name: "applepaytransactionidentifier",
                                     id: "applepaytransactionidentifier"
                                 }),
-                                        Object(window.wp.element.createElement)('div', {
-                                        id: "processingMessage",
-                                        style: {
-                                                display: "none",
-                                                position: "fixed",
-                                                top: "50%",
-                                                left: "50%",
-                                                transform: "translate(-50%, -50%)",
-                                                backgroundColor: "rgba(0,0,0,0.8)",
-                                                color: "white",
-                                                padding: "20px",
-                                                borderRadius: "8px",
-                                                textAlign: "center",
-                                        },
-                                    }, "Order Processing... Please wait."),
+                                Object(window.wp.element.createElement)('div', {
+                                    id: "processingMessage",
+                                    style: {
+                                        display: "none",
+                                        position: "fixed",
+                                        top: "50%",
+                                        left: "50%",
+                                        transform: "translate(-50%, -50%)",
+                                        backgroundColor: "rgba(0,0,0,0.8)",
+                                        color: "white",
+                                        padding: "20px",
+                                        borderRadius: "8px",
+                                        textAlign: "center",
+                                    },
+                                }, "Order Processing... Please wait."),
                             );
                 };
 
