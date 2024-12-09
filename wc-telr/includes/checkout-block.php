@@ -86,7 +86,7 @@ final class WC_Telr_Blocks extends AbstractPaymentMethodType
             'language' => $language,
             'supportNetworks'=>$telrSupportedNetworks,
             'orderButtonText' =>$order_button_text,
-			'iconPath'=>$path.'spacer.gif'
+            'iconPath'=>$path.'spacer.gif'
         ]; 
     }
 }
