@@ -12,6 +12,11 @@ include(dirname(__FILE__) . '/settings/settings-telr.php');
 
 class WC_Gateway_Telr_Admin_Handler
 {
+    public $allowed_currencies;
+    public $testmode;
+    public $store_id;
+    public $remote_store_secret;
+
     public function __construct()
     {
         $this->allowed_currencies   = include(dirname(__FILE__) . '/settings/supportd-currencies-telr.php');

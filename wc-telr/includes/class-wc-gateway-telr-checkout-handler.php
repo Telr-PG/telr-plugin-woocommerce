@@ -13,6 +13,13 @@ require_once($includes_path. 'abstracts/abstract-wc-gateway-telr-apple.php');
 
 class WC_Gateway_Telr_Checkout_Handler
 {
+    public $telr_payment_gateway;
+    public $telr_apple_payment_gateway;
+    public $payment_mode;
+    public $payment_mode_woocomm;
+    public $subs_method;
+    public $tran_type;
+
     public function __construct()
     {        		
         $this->telr_payment_gateway = new WC_Telr_Payment_Gateway();
@@ -81,7 +88,7 @@ class WC_Gateway_Telr_Checkout_Handler
             $order->delete_meta_data('_telr_tran_type',true);
         }
         $order->add_meta_data('_telr_tran_type',$this->tran_type);
-        
+
         if(is_ssl() && ($this->payment_mode_woocomm == 2 || $this->payment_mode_woocomm == '9' || $this->payment_mode_woocomm == '10') && !isset($_POST['woocommerce_change_payment'])) {
             if ($order->get_meta('_telr_url',true)) {
                 $order->delete_meta_data('_telr_url',true);
@@ -383,16 +390,16 @@ class WC_Gateway_Telr_Checkout_Handler
            'bill_country'    => $order->get_billing_country(),
            'bill_email'      => $order->get_billing_email(),
 	       'bill_tel'        => $order->get_billing_phone(),
-	       'applepay_enc_version'  => $applePayData['applePayVersion'],
-	       'applepay_enc_paydata'  => urlencode($applePayData['applePayData']),
-	       'applepay_enc_paysig'   => urlencode($applePayData['applePaySignature']),
-	       'applepay_enc_pubkey'   => urlencode($applePayData['applePayKey']),
-	       'applepay_enc_keyhash'  => $applePayData['applePayKeyHash'],
-	       'applepay_tran_id'      => $applePayData['applePayTransactionId'],
-	       'applepay_card_desc'    => $applePayData['applePayType'],
-	       'applepay_card_scheme'  => $applePayData['applePayDisplayName'],
-	       'applepay_card_type'    => $applePayData['applePayNetwork'],
-	       'applepay_tran_id2'     => $applePayData['applePayTransactionIdentifier']
+	       'applepay_enc_version'  => $applePayData['applepayversion'],
+	       'applepay_enc_paydata'  => urlencode($applePayData['applepaydata']),
+	       'applepay_enc_paysig'   => urlencode($applePayData['applepaysignature']),
+	       'applepay_enc_pubkey'   => urlencode($applePayData['applepaykey']),
+	       'applepay_enc_keyhash'  => $applePayData['applepaykeyhash'],
+	       'applepay_tran_id'      => $applePayData['applepaytransactionid'],
+	       'applepay_card_desc'    => $applePayData['applepaytype'],
+	       'applepay_card_scheme'  => $applePayData['applepaydisplayname'],
+	       'applepay_card_type'    => $applePayData['applepaynetwork'],
+	       'applepay_tran_id2'     => $applePayData['applepaytransactionidentifier']
 	    );
 		
 		// Check for Repeat Billig Product
