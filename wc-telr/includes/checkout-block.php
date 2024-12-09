@@ -31,10 +31,10 @@ final class WC_Telr_Blocks extends AbstractPaymentMethodType
                 'wp-element',
                 'wp-html-entities',
                 'wp-i18n',
-				'wp-blocks',
-				'wp-components',
-				'wp-data',
-				'wp-hooks',
+                'wp-blocks',
+                'wp-components',
+                'wp-data',
+                'wp-hooks',
             ],
             null,
             true
@@ -50,13 +50,13 @@ final class WC_Telr_Blocks extends AbstractPaymentMethodType
 
     public function get_payment_method_data()
     {	
-		$telrSupportedNetworks = array();
-		$title = $this->settings['title'];
-		$description = $this->settings['description'];
-		$language = $this->settings['language'];
-		$order_button_text = "Place Order";
-		
-		if ( defined( 'ICL_LANGUAGE_CODE' ) ) {
+        $telrSupportedNetworks = array();
+        $title = $this->settings['title'];
+        $description = $this->settings['description'];
+        $language = $this->settings['language'];
+        $order_button_text = "Place Order";
+
+        if ( defined( 'ICL_LANGUAGE_CODE' ) ) {
             if(ICL_LANGUAGE_CODE == 'en' || ICL_LANGUAGE_CODE == 'ar'){
                 $language = ICL_LANGUAGE_CODE;
             }
@@ -78,14 +78,14 @@ final class WC_Telr_Blocks extends AbstractPaymentMethodType
         return [
             'title' => $title,
             'description' => $description,
-			'storeId' => $this->settings['store_id'],
-			'currency' => get_woocommerce_currency(),
-			'testMode' => $this->settings['testmode'] === 'yes' ? 1 : 0,
-			'paymentMode'=>$this->settings['payment_mode'],
-			'savedCards' => array(),
-			'language' => $language,
-			'supportNetworks'=>$telrSupportedNetworks,
-			'orderButtonText' =>$order_button_text,
+            'storeId' => $this->settings['store_id'],
+            'currency' => get_woocommerce_currency(),
+            'testMode' => $this->settings['testmode'] === 'yes' ? 1 : 0,
+            'paymentMode'=>$this->settings['payment_mode'],
+            'savedCards' => array(),
+            'language' => $language,
+            'supportNetworks'=>$telrSupportedNetworks,
+            'orderButtonText' =>$order_button_text,
 			'iconPath'=>$path.'spacer.gif'
         ]; 
     }
