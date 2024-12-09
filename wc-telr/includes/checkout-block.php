@@ -13,14 +13,14 @@ final class WC_Telr_Blocks extends AbstractPaymentMethodType
 
     public function get_payment_method_script_handles()
     {		
-		switch($this->settings['payment_mode']){			
-			case 10:
-				$checkout_block_file = 'block/seamless_checkout_block.js?v=1';
-				break;
-			default:
-				$checkout_block_file = 'block/checkout_block.js?v=2';
-				break;
-		}
+        switch($this->settings['payment_mode']){
+            case 10:
+                $checkout_block_file = 'block/seamless_checkout_block.js?v=1';
+                break;
+            default:
+                $checkout_block_file = 'block/checkout_block.js?v=2';
+            break;
+        }
 		
         wp_register_script(
             'wctelr-blocks-integration',
@@ -62,19 +62,19 @@ final class WC_Telr_Blocks extends AbstractPaymentMethodType
             }
         }
 		
-		if($language == 'ar'){
-			$title = $this->settings['title_arabic'];
-			$description = $this->settings['description_arabic'];
-			$order_button_text = "المتابعة للدفع";
-		}
-		
-		$path = plugins_url( '../assets/images/', __FILE__ );		
-		$url = parse_url($path, PHP_URL_PATH);
-		$realPath = realpath($_SERVER['DOCUMENT_ROOT'] . $url);
-		if ($realPath && is_dir($realPath)) {
-			$telrSupportedNetworks = wc_gateway_telr()->admin->getTelrSupportedNetworks();
-		}
-		
+        if($language == 'ar'){
+            $title = $this->settings['title_arabic'];
+            $description = $this->settings['description_arabic'];
+            $order_button_text = "المتابعة للدفع";
+        }
+
+        $path = plugins_url( '../assets/images/', __FILE__ );		
+        $url = parse_url($path, PHP_URL_PATH);
+        $realPath = realpath($_SERVER['DOCUMENT_ROOT'] . $url);
+        if ($realPath && is_dir($realPath)) {
+            $telrSupportedNetworks = wc_gateway_telr()->admin->getTelrSupportedNetworks();
+        }
+
         return [
             'title' => $title,
             'description' => $description,

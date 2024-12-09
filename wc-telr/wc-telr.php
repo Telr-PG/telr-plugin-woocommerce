@@ -68,17 +68,17 @@ function telr_woocommerce_block_support()
                         return new WC_Telr_Blocks();
                     }
                 );
-            $payment_method_registry->register($container->get(WC_Telr_Blocks::class));
+                $payment_method_registry->register($container->get(WC_Telr_Blocks::class));
 
-            $container->register(
-                WC_Telr_Apple_Blocks::class,
-                function() {
-                    return new WC_Telr_Apple_Blocks();
-                }
-            );
-            $payment_method_registry->register($container->get(WC_Telr_Apple_Blocks::class));
-          },
-          5
+                $container->register(
+                    WC_Telr_Apple_Blocks::class,
+                    function() {
+                        return new WC_Telr_Apple_Blocks();
+                    }
+                );
+                $payment_method_registry->register($container->get(WC_Telr_Apple_Blocks::class));
+            },
+            5
         );
     }
 }
