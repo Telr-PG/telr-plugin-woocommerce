@@ -150,10 +150,15 @@ const Block_Gateway = {
 window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway);
 
 document.addEventListener("change", (event) => { console.log(event.target.name);
-    const placeOrderButton = document.querySelector(".wc-block-components-checkout-place-order-button");
+    const placeOrderButton = document.querySelector(".wc-block-components-checkout-place-order-button__text");
+    const telr_iframe = document.querySelector("#telr_iframe");
     if (event.target.name === 'radio-control-wc-payment-method-options' && placeOrderButton) {
         const selectedMethod = event.target.value;
         placeOrderButton.textContent = selectedMethod === 'wctelr' ? settings.orderButtonText : "Place Order";
+    }
+    if(telr_iframe) {
+        window.telrInit = false;
+        initializeTelrIframe();
     }
 }); 
  

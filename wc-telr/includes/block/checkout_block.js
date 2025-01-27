@@ -38,7 +38,6 @@ if(paymentMode == 0){
                 const existingIframe = document.getElementById("telr_iframe");
                 const networkIcons = document.getElementById("network_icons");
                 if (iframeUrl) {
-                    existingIframe.previousElementSibling.remove();
                     existingIframe.src = iframeUrl;
                     existingIframe.height = "550";
                     existingIframe.style.display = "block";
@@ -102,9 +101,13 @@ const Block_Gateway = {
 window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway);
 
 document.addEventListener("change", (event) => { console.log(event.target.name);
-    const placeOrderButton = document.querySelector(".wc-block-components-checkout-place-order-button");
+    const placeOrderButton = document.querySelector(".wc-block-components-checkout-place-order-button__text");
+    const orderButton = document.querySelector(".wc-block-components-checkout-place-order-button");
     if (event.target.name === 'radio-control-wc-payment-method-options' && placeOrderButton) {
         const selectedMethod = event.target.value;
         placeOrderButton.textContent = selectedMethod === 'wctelr' ? settings.orderButtonText : "Place Order";
+    }
+    if(event.target.value !== 'wctelr' && orderButton.style.display === 'none'){
+        location.reload();
     }
 }); 
