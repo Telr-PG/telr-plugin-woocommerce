@@ -107,7 +107,7 @@ document.addEventListener("change", (event) => { console.log(event.target.name);
         const selectedMethod = event.target.value;
         placeOrderButton.textContent = selectedMethod === 'wctelr' ? settings.orderButtonText : "Place Order";
     }
-    if(event.target.value !== 'wctelr' && orderButton.style.display === 'none'){
-        location.reload();
+    if (placeOrderButton && placeOrderButton.classList.contains('wc-block-components-checkout-place-order-button__text--visually-hidden')) {
+       location.reload();
     }
 }); 
