@@ -52,7 +52,7 @@ final class WC_Telr_Apple_Blocks extends AbstractPaymentMethodType
 
         $apple_mercahnt_id = isset($this->settings['apple_mercahnt_id']) ? $this->settings['apple_mercahnt_id'] : '';
         $apple_type = isset($this->settings['apple_type']) ? $this->settings['apple_type'] : '';
-        $apple_theme = isset($this->settings['apple_theme']) ? $this->settings['apple_theme'] : '';        
+        $apple_theme = isset($this->settings['apple_theme']) ? $this->settings['apple_theme'] : '';
         $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
 
         if (is_admin()) {
