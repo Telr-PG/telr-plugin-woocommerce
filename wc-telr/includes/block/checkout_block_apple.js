@@ -1,5 +1,6 @@
 const apple_settings = window.wc.wcSettings.getSetting('wc_telr_apple_pay_data', {});
 const is_admin = apple_settings.is_admin;
+const is_applepay_enable = apple_settings.applepay_enable;
 if(is_admin){
     const apple_label = window.wp.htmlEntities.decodeEntities(apple_settings.title) || window.wp.i18n.__('Telr for woocommerce', 'wc_telr_apple_pay');
     const Content_apple = () => {
@@ -17,7 +18,7 @@ if(is_admin){
         },
     };
     window.wc.wcBlocksRegistry.registerPaymentMethod( Block_Gateway );
-}else{
+}else if(is_applepay_enable){
     const apple_label = window.wp.htmlEntities.decodeEntities(apple_settings.title) || window.wp.i18n.__('Telr for woocommerce', 'wc_telr_apple_pay');
     const apple_mercahnt_id = apple_settings.apple_mercahnt_id;
     const apple_type = apple_settings.apple_type;

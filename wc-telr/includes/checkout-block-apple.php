@@ -53,6 +53,7 @@ final class WC_Telr_Apple_Blocks extends AbstractPaymentMethodType
         $apple_mercahnt_id = isset($this->settings['apple_mercahnt_id']) ? $this->settings['apple_mercahnt_id'] : '';
         $apple_type = isset($this->settings['apple_type']) ? $this->settings['apple_type'] : '';
         $apple_theme = isset($this->settings['apple_theme']) ? $this->settings['apple_theme'] : '';
+        $payment_gateways = WC()->payment_gateways->get_available_payment_gateways();
 
         if (is_admin()) {
             return [
@@ -61,7 +62,7 @@ final class WC_Telr_Apple_Blocks extends AbstractPaymentMethodType
                 'description' => $description,
                 'iconPath'=>plugins_url( '../assets/images/', __FILE__ ).'spacer.gif'
             ];
-        }else{
+        }elseif(isset($payment_gateways['wc_telr_apple_pay'])){
             global $woocommerce;
             $subscriptionProduct = false;
             $subscriptionProductCount = 0;
@@ -161,7 +162,8 @@ final class WC_Telr_Apple_Blocks extends AbstractPaymentMethodType
                 'cartSubTotal'=>$cartSubTotal,
                 'chosen_shipping'=>$chosen_shipping,
                 'shipping_amount'=>$shipping_amount,
-                'session_url'=>$session_url
+                'session_url'=>$session_url,
+                'applepay_enable'=>true
             ];
         }
     }
