@@ -1,10 +1,10 @@
 const { useState, useEffect } = wp.element;
-const seamless_telr_settings = window.wc.wcSettings.getSetting('wctelr_data', {});
-const label = window.wp.htmlEntities.decodeEntities(seamless_telr_settings.title) || window.wp.i18n.__('Telr Payments', 'wctelr');
-const storeId = seamless_telr_settings.storeId || '';
-const currency = seamless_telr_settings.currency || '';
-const testMode = seamless_telr_settings.testMode || '0';
-const iframeUrl = `https://secure.telr.com/jssdk/v2/token_frame.html?token=${Math.floor(Math.random() * (9999 - 1111 + 1)) + 1111}&lang=${seamless_telr_settings.language || 'en'}`;
+const seamlessTelrSettings = window.wc.wcSettings.getSetting('wctelr_data', {});
+const label = window.wp.htmlEntities.decodeEntities(seamlessTelrSettings.title) || window.wp.i18n.__('Telr Payments', 'wctelr');
+const storeId = seamlessTelrSettings.storeId || '';
+const currency = seamlessTelrSettings.currency || '';
+const testMode = seamlessTelrSettings.testMode || '0';
+const iframeUrl = `https://secure.telr.com/jssdk/v2/token_frame.html?token=${Math.floor(Math.random() * (9999 - 1111 + 1)) + 1111}&lang=${seamlessTelrSettings.language || 'en'}`;
 
 window.telrInit = false;
 
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Content function to create the iframe
-const seamless_telr_content = (props) => {
+const seamlessTelrContent = (props) => {
     const { eventRegistration, emitResponse } = props;
     const { onPaymentSetup, onCheckoutSuccess } = eventRegistration;
 
@@ -139,12 +139,12 @@ const seamless_telr_content = (props) => {
 const Block_Gateway = {
     name: 'wctelr',
     label: label,
-    content: Object(window.wp.element.createElement)(seamless_telr_content, null),
-    edit: Object(window.wp.element.createElement)(seamless_telr_content, null),
+    content: Object(window.wp.element.createElement)(seamlessTelrContent, null),
+    edit: Object(window.wp.element.createElement)(seamlessTelrContent, null),
     canMakePayment: () => true,
     ariaLabel: label,
     supports: {
-        features: seamless_telr_settings.supports,
+        features: seamlessTelrSettings.supports,
     },
 };
 window.wc.wcBlocksRegistry.registerPaymentMethod(Block_Gateway);
@@ -154,7 +154,7 @@ document.addEventListener("change", (event) => { console.log(event.target.name);
     const telr_iframe = document.querySelector("#telr_iframe");
     if (event.target.name === 'radio-control-wc-payment-method-options' && placeOrderButton) {
         const selectedMethod = event.target.value;
-        placeOrderButton.textContent = selectedMethod === 'wctelr' ? seamless_telr_settings.orderButtonText : "Place Order";
+        placeOrderButton.textContent = selectedMethod === 'wctelr' ? seamlessTelrSettings.orderButtonText : "Place Order";
     }
     if(telr_iframe) {
         window.telrInit = false;
