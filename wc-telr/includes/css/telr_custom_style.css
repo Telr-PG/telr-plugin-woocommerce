@@ -187,3 +187,8 @@ img.logo_tabby {
 	width: 70px;
 	background: url('../../assets/images/tabbysmall.png') 0 0;
 }
+img.logo_jeelpay {
+	height: 30px !important;
+	width: 108px;
+	background: url('../../assets/images/jeelpay_logo.svg') 0 0;
+}

@@ -17,6 +17,7 @@ const iconPaths = {
     STCPAY: { src: telrSettings.iconPath, alt: 'STCPAY', className: 'logo_stcpay' },
     URPAY: { src: telrSettings.iconPath, alt: 'URPAY', className: 'logo_urpay' },
     Tabby: { src: telrSettings.iconPath, alt: 'Tabby', className: 'logo_tabby' },
+    JeelPAY: { src: telrSettings.iconPath, alt: 'JeelPAY', className: 'logo_jeelpay' },
 };
 
 let telrContent;

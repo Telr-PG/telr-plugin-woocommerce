@@ -906,6 +906,8 @@ class WC_Telr_Payment_Gateway extends WC_Payment_Gateway
 							echo "<img src='".$path."spacer.gif' alt='URPAY' class='logo_urpay'>";
 						}elseif($card == 'Tabby'){
 							echo "<img src='".$path."spacer.gif' alt='Tabby' class='logo_tabby'>";
+						}elseif($card == 'JeelPAY'){
+							echo "<img src='".$path."spacer.gif' alt='JeelPAY' class='logo_jeelpay'>";
 						}
 					}
 				}

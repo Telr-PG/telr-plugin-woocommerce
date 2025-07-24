@@ -18,7 +18,7 @@ final class WC_Telr_Blocks extends AbstractPaymentMethodType
                 $checkout_block_file = 'block/seamless_checkout_block.js?v=1';
                 break;
             default:
-                $checkout_block_file = 'block/checkout_block.js?v=2';
+                $checkout_block_file = 'block/checkout_block.js?v=3';
             break;
         }
 		
